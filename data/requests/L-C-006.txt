@@ -1,0 +1,8 @@
+Request ID: L-C-006
+Matter: ORG-1012
+From: Tariq Al-Shammari <l06@rasikh.example>
+Requester member_id: L-06
+Type: contract_review
+Date: 2026-07-01
+
+Review the mutual NDA (C-06) between Najd and Manar. Is it complete and ready to sign?

@@ -1,0 +1,8 @@
+Request ID: L-C-004
+Matter: ORG-1033
+From: Noura Al-Mutairi <l07@rasikh.example>
+Requester member_id: L-07
+Type: contract_review
+Date: 2026-07-01
+
+Quick review of the Rukn consulting agreement (C-04) for Salam — anything unusual on liability or term?

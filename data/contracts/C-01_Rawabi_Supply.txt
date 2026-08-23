@@ -1,0 +1,17 @@
+CONTRACT C-01 — SUPPLY AGREEMENT
+Matter: ORG-1007 (Rawabi Industries)
+Parties: Rawabi Industries (Buyer) and Sadara Components Ltd (Supplier)
+Language: English
+
+1. Term. This Agreement takes effect on 1 March 2026 and continues for a fixed term of
+   twelve (12) months, expiring on 28 February 2027. It does not renew automatically; any
+   continuation requires a new written agreement signed by both parties.
+2. Scope. The Supplier shall deliver machined components per the specification in Schedule A.
+3. Price and Payment. Total price SAR 480,000, invoiced monthly, payable within 30 days of
+   invoice. No interest or charge applies to late payment.
+7. Liability. Each party's total liability under this Agreement is capped at SAR 480,000, being
+   the total contract value. This cap covers all claims except neither party excludes liability
+   for death or personal injury caused by its negligence.
+9. Governing Law. This Agreement is governed by the laws of the Kingdom of Saudi Arabia.
+   Disputes are referred to the competent courts of Riyadh.
+12. Signatures. Signed for Rawabi Industries: ______.  Signed for Sadara Components Ltd: ______.

@@ -1,0 +1,8 @@
+Request ID: L-C-009
+Matter: ORG-1028
+From: Khalid Al-Rasheed <l10@rasikh.example>
+Requester member_id: L-10
+Type: contract_review
+Date: 2026-07-01
+
+مراجعة عقد التوريد (C-09) لصالح أغذية الحجاز. أرجو تحديد آلية التجديد والموعد النهائي لإرسال الإشعار، وأي بند يحتاج إلى مراجعة متخصصة.

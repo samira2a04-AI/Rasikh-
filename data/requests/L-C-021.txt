@@ -1,0 +1,8 @@
+Request ID: L-C-021
+Matter: ORG-1012
+From: Tariq Al-Shammari <l06@rasikh.example>
+Requester member_id: L-06
+Type: contract_review
+Date: 2026-07-01
+
+Can you review the contract and tell me if the liability is okay?

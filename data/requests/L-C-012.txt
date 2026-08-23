@@ -1,0 +1,8 @@
+Request ID: L-C-012
+Matter: ORG-1007
+From: Layla Al-Ghamdi <l05@rasikh.example>
+Requester member_id: L-05
+Type: consultation
+Date: 2026-07-01
+
+Rawabi's board wants a one-line risk rating on the Qimam licence (C-03). What rating and why?

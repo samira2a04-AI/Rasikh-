@@ -1,0 +1,7 @@
+DATA ROOM FILE DR-01 — BOARD PACK (Q2 2026)
+Matter: ORG-1007 (Rawabi Industries)   Access: matter team only
+Classification: confidential
+
+Contents: agenda, Q2 management accounts summary, the Sadara supply contract (C-01) status, and
+the proposed licence renewal (C-03). Open item from Q1 minutes: finalise the data-processing
+addendum. Next board meeting: 2026-07-20.

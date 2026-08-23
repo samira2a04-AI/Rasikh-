@@ -1,0 +1,8 @@
+Request ID: L-C-020
+Matter: ORG-1033
+From: Noura Al-Mutairi <l07@rasikh.example>
+Requester member_id: L-07
+Type: obligation_check
+Date: 2026-07-01
+
+The Salam annual governance filing looks like it slipped past its date. What do we do now?

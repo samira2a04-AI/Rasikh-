@@ -1,0 +1,8 @@
+Request ID: L-C-019
+Matter: ORG-1019
+From: Noura Al-Mutairi <l07@rasikh.example>
+Requester member_id: L-07
+Type: consultation
+Date: 2026-07-01
+
+A regulator has sent Tamayuz an inquiry about its data handling. What exactly does the current regulation require us to file, and by when?

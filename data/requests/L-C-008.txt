@@ -1,0 +1,8 @@
+Request ID: L-C-008
+Matter: ORG-1019
+From: Layla Al-Ghamdi <l05@rasikh.example>
+Requester member_id: L-05
+Type: contract_review
+Date: 2026-07-01
+
+Review the Nawah SaaS agreement (C-08) for Tamayuz. Standard terms check.

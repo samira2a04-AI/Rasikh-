@@ -1,0 +1,6 @@
+DATA ROOM FILE DR-03 — CAP TABLE & SHAREHOLDER REGISTER
+Matter: ORG-1019 (Tamayuz Fintech)   Access: matter team only
+Classification: confidential
+
+Shareholder register and option pool as of 2026-06-30. Supports governance filings and the
+July board meeting.

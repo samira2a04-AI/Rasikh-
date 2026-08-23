@@ -1,0 +1,8 @@
+Request ID: L-C-005
+Matter: ORG-1041
+From: Omar Al-Dossari <l04@rasikh.example>
+Requester member_id: L-04
+Type: contract_review
+Date: 2026-07-01
+
+Review the Baseel commercial lease (C-05). Landlord is Nakheel. Flag any risk and anything needing specialist review.

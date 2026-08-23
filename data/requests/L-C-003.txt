@@ -1,0 +1,8 @@
+Request ID: L-C-003
+Matter: ORG-1007
+From: Omar Al-Dossari <l04@rasikh.example>
+Requester member_id: L-04
+Type: contract_review
+Date: 2026-07-01
+
+Review the Qimam software licence (C-03) for Rawabi. What's our liability exposure?

@@ -1,0 +1,13 @@
+CONTRACT C-08 — SAAS SUBSCRIPTION AGREEMENT
+Matter: ORG-1019 (Tamayuz Fintech)
+Parties: Tamayuz Fintech (Customer) and Nawah Cloud (Provider)
+Language: English
+
+1. Term. Fixed term of twenty-four (24) months from 1 February 2026, expiring 31 January 2028.
+   Renewal by written agreement only.
+3. Fees. SAR 40,000 per month, payable within 30 days. No late-payment charge.
+7. Liability. Each party's liability is capped at the fees paid in the preceding 12 months.
+8. Data. The Provider processes personal data only on the Customer's instructions and returns it
+   on termination.
+9. Governing Law. Laws of the Kingdom of Saudi Arabia; courts of Riyadh.
+12. Signatures. Executed by both parties.

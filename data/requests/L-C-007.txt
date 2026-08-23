@@ -1,0 +1,8 @@
+Request ID: L-C-007
+Matter: ORG-1060
+From: Khalid Al-Rasheed <l10@rasikh.example>
+Requester member_id: L-10
+Type: contract_review
+Date: 2026-07-01
+
+Review the Tharwa distribution agreement (C-07) for Durrah — termination balance and payment terms in particular.

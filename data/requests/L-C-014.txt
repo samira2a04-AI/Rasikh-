@@ -1,0 +1,8 @@
+Request ID: L-C-014
+Matter: ORG-1007
+From: Faisal Al-Harbi <l02@rasikh.example>
+Requester member_id: L-02
+Type: meeting_prep
+Date: 2026-07-01
+
+Assemble the Rawabi Q2 board prep from the board pack (DR-01) — agenda items and anything due before the meeting.

@@ -1,0 +1,8 @@
+Request ID: L-C-013
+Matter: ORG-1019
+From: Layla Al-Ghamdi <l05@rasikh.example>
+Requester member_id: L-05
+Type: meeting_prep
+Date: 2026-07-01
+
+Prep for the Tamayuz board meeting this week: obligations falling due, any renewals in the window, and open items from the file.

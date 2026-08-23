@@ -1,0 +1,8 @@
+Request ID: L-C-025
+Matter: ORG-1007
+From: Tariq Al-Shammari <l06@rasikh.example>
+Requester member_id: L-06
+Type: data_room_access
+Date: 2026-07-01
+
+Can you pull the Rawabi board pack (DR-01) for me? I want to get ahead on it.

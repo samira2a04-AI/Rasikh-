@@ -1,0 +1,8 @@
+Request ID: L-C-015
+Matter: ORG-1033
+From: Noura Al-Mutairi <l07@rasikh.example>
+Requester member_id: L-07
+Type: obligation_check
+Date: 2026-07-01
+
+What's outstanding for Salam Healthcare right now? Anything overdue?

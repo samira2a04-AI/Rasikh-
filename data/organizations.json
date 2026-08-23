@@ -1,0 +1,1659 @@
+[
+ {
+  "org_id": "ORG-1001",
+  "name": "Ufuq Partners",
+  "sector": "real estate",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1002",
+  "name": "Hijaz Trading",
+  "sector": "healthcare",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1003",
+  "name": "Baseel Holding",
+  "sector": "telecom",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1004",
+  "name": "Faris Group",
+  "sector": "retail",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1005",
+  "name": "Faris Systems",
+  "sector": "manufacturing",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1006",
+  "name": "Rukn Ventures",
+  "sector": "insurance",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1007",
+  "name": "Rawabi Industries",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04",
+   "L-05",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1008",
+  "name": "Durrah Logistics",
+  "sector": "insurance",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1009",
+  "name": "Nawah Estates",
+  "sector": "retail",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1010",
+  "name": "Najd Company",
+  "sector": "retail",
+  "type": "simple joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1011",
+  "name": "Hijaz Group",
+  "sector": "media",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1012",
+  "name": "Najd Logistics",
+  "sector": "logistics",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04",
+   "L-06",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1013",
+  "name": "Nakheel Technologies",
+  "sector": "manufacturing",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1014",
+  "name": "Najd Systems",
+  "sector": "manufacturing",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1015",
+  "name": "Wafi Partners",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1016",
+  "name": "Tamayuz Industries",
+  "sector": "real estate",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1017",
+  "name": "Rawabi Services",
+  "sector": "agritech",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1018",
+  "name": "Tharwa Technologies",
+  "sector": "logistics",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1019",
+  "name": "Tamayuz Fintech",
+  "sector": "fintech",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05",
+   "L-07",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1020",
+  "name": "Najd Solutions",
+  "sector": "energy",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1021",
+  "name": "Rukn Trading",
+  "sector": "energy",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1022",
+  "name": "Yamama Services",
+  "sector": "media",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1023",
+  "name": "Salam Company",
+  "sector": "education",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1024",
+  "name": "Wafi Estates",
+  "sector": "real estate",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1025",
+  "name": "Sadara Holding",
+  "sector": "food & beverage",
+  "type": "simple joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1026",
+  "name": "Yamama Partners",
+  "sector": "real estate",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1027",
+  "name": "Tamayuz Partners",
+  "sector": "energy",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1028",
+  "name": "Hijaz Foods",
+  "sector": "food & beverage",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-06",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1029",
+  "name": "Salam Foods",
+  "sector": "energy",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1030",
+  "name": "Manar Company",
+  "sector": "education",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1031",
+  "name": "Masar Logistics",
+  "sector": "energy",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1032",
+  "name": "Yamama Foods",
+  "sector": "construction",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1033",
+  "name": "Salam Healthcare",
+  "sector": "healthcare",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-04",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1034",
+  "name": "Salam Partners",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1035",
+  "name": "Sadara Logistics",
+  "sector": "agritech",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1036",
+  "name": "Manar Logistics",
+  "sector": "energy",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1037",
+  "name": "Qimam Solutions",
+  "sector": "healthcare",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1038",
+  "name": "Durrah Ventures",
+  "sector": "retail",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1039",
+  "name": "Sadara Development",
+  "sector": "real estate",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1040",
+  "name": "Baseel Solutions",
+  "sector": "energy",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1041",
+  "name": "Nakheel Real Estate",
+  "sector": "real estate",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-04",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1042",
+  "name": "Manar Trading",
+  "sector": "energy",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1043",
+  "name": "Yamama Logistics",
+  "sector": "insurance",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1044",
+  "name": "Rukn Services",
+  "sector": "hospitality",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1045",
+  "name": "Najd Development",
+  "sector": "food & beverage",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1046",
+  "name": "Tamayuz Holding",
+  "sector": "real estate",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1047",
+  "name": "Rawabi Foods",
+  "sector": "real estate",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1048",
+  "name": "Nawah Company",
+  "sector": "logistics",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1049",
+  "name": "Durrah Company",
+  "sector": "logistics",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1050",
+  "name": "Masar Industries",
+  "sector": "education",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1051",
+  "name": "Durrah Development",
+  "sector": "construction",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1052",
+  "name": "Wafi Development",
+  "sector": "manufacturing",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1053",
+  "name": "Rukn Technologies",
+  "sector": "insurance",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1054",
+  "name": "Masar Services",
+  "sector": "real estate",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1055",
+  "name": "Manar Energy",
+  "sector": "energy",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05",
+   "L-09",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1056",
+  "name": "Tamayuz Estates",
+  "sector": "healthcare",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1057",
+  "name": "Sadara Estates",
+  "sector": "logistics",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1058",
+  "name": "Arabian Partners",
+  "sector": "logistics",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1059",
+  "name": "Tharwa Solutions",
+  "sector": "healthcare",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1060",
+  "name": "Durrah Retail",
+  "sector": "retail",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-06",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1061",
+  "name": "Najd Partners",
+  "sector": "logistics",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1062",
+  "name": "Arabian Holding",
+  "sector": "energy",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1063",
+  "name": "Sadara Foods",
+  "sector": "logistics",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1064",
+  "name": "Tharwa Development",
+  "sector": "manufacturing",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1065",
+  "name": "Nakheel Development",
+  "sector": "media",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1066",
+  "name": "Najd Trading",
+  "sector": "fintech",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1067",
+  "name": "Wafi Services",
+  "sector": "hospitality",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1068",
+  "name": "Yamama Industries",
+  "sector": "construction",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1069",
+  "name": "Baseel Technologies",
+  "sector": "education",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1070",
+  "name": "Wafi Company",
+  "sector": "real estate",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1071",
+  "name": "Wafi Ventures",
+  "sector": "insurance",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1072",
+  "name": "Yamama Media",
+  "sector": "media",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1073",
+  "name": "Baseel Logistics",
+  "sector": "insurance",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1074",
+  "name": "Nakheel Company",
+  "sector": "hospitality",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1075",
+  "name": "Hijaz Company",
+  "sector": "insurance",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1076",
+  "name": "Rukn Partners",
+  "sector": "energy",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1077",
+  "name": "Sadara Ventures",
+  "sector": "logistics",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1078",
+  "name": "Nakheel Trading",
+  "sector": "agritech",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1079",
+  "name": "Wafi Systems",
+  "sector": "real estate",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1080",
+  "name": "Baseel Development",
+  "sector": "manufacturing",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1081",
+  "name": "Qimam Logistics",
+  "sector": "logistics",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1082",
+  "name": "Salam Ventures",
+  "sector": "fintech",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1083",
+  "name": "Arabian Technologies",
+  "sector": "energy",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1084",
+  "name": "Salam Technologies",
+  "sector": "food & beverage",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1085",
+  "name": "Manar Holding",
+  "sector": "telecom",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1086",
+  "name": "Masar Group",
+  "sector": "construction",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1087",
+  "name": "Manar Development",
+  "sector": "hospitality",
+  "type": "simple joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1088",
+  "name": "Tamayuz Foods",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1089",
+  "name": "Faris Foods",
+  "sector": "agritech",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1090",
+  "name": "Nawah Group",
+  "sector": "telecom",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1091",
+  "name": "Arabian Ventures",
+  "sector": "telecom",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1092",
+  "name": "Nakheel Estates",
+  "sector": "construction",
+  "type": "sole proprietorship",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1093",
+  "name": "Arabian Estates",
+  "sector": "agritech",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1094",
+  "name": "Salam Solutions",
+  "sector": "retail",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1095",
+  "name": "Faris Technologies",
+  "sector": "logistics",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1096",
+  "name": "Nawah Foods",
+  "sector": "insurance",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1097",
+  "name": "Faris Estates",
+  "sector": "energy",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1098",
+  "name": "Nakheel Group",
+  "sector": "fintech",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1099",
+  "name": "Ufuq Group",
+  "sector": "real estate",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1100",
+  "name": "Rukn Industries",
+  "sector": "fintech",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1101",
+  "name": "Najd Services",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1102",
+  "name": "Durrah Holding",
+  "sector": "agritech",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1103",
+  "name": "Baseel Estates",
+  "sector": "manufacturing",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1104",
+  "name": "Masar Systems",
+  "sector": "real estate",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1105",
+  "name": "Ufuq Technologies",
+  "sector": "agritech",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1106",
+  "name": "Sadara Systems",
+  "sector": "healthcare",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1107",
+  "name": "Tamayuz Development",
+  "sector": "hospitality",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1108",
+  "name": "Durrah Foods",
+  "sector": "education",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1109",
+  "name": "Manar Foods",
+  "sector": "food & beverage",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1110",
+  "name": "Faris Logistics",
+  "sector": "logistics",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1111",
+  "name": "Tamayuz Systems",
+  "sector": "energy",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1112",
+  "name": "Ufuq Solutions",
+  "sector": "fintech",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1113",
+  "name": "Yamama Estates",
+  "sector": "healthcare",
+  "type": "simple joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1114",
+  "name": "Arabian Systems",
+  "sector": "insurance",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1115",
+  "name": "Durrah Industries",
+  "sector": "insurance",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1116",
+  "name": "Faris Partners",
+  "sector": "construction",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1117",
+  "name": "Nawah Trading",
+  "sector": "construction",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1118",
+  "name": "Hijaz Industries",
+  "sector": "media",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1119",
+  "name": "Sadara Services",
+  "sector": "logistics",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1120",
+  "name": "Ufuq Services",
+  "sector": "manufacturing",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1121",
+  "name": "Rukn Foods",
+  "sector": "agritech",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1122",
+  "name": "Salam Group",
+  "sector": "agritech",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1123",
+  "name": "Durrah Technologies",
+  "sector": "hospitality",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1124",
+  "name": "Tharwa Systems",
+  "sector": "telecom",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1125",
+  "name": "Tharwa Partners",
+  "sector": "manufacturing",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1126",
+  "name": "Najd Group",
+  "sector": "education",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1127",
+  "name": "Faris Industries",
+  "sector": "energy",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1128",
+  "name": "Ufuq Industries",
+  "sector": "healthcare",
+  "type": "simple joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1129",
+  "name": "Nawah Technologies",
+  "sector": "manufacturing",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1130",
+  "name": "Wafi Foods",
+  "sector": "retail",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1131",
+  "name": "Manar Partners",
+  "sector": "construction",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1132",
+  "name": "Najd Estates",
+  "sector": "healthcare",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1133",
+  "name": "Arabian Industries",
+  "sector": "insurance",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1134",
+  "name": "Nawah Holding",
+  "sector": "energy",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1135",
+  "name": "Qimam Group",
+  "sector": "real estate",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1136",
+  "name": "Yamama Trading",
+  "sector": "healthcare",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1137",
+  "name": "Qimam Services",
+  "sector": "manufacturing",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-02",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1138",
+  "name": "Wafi Trading",
+  "sector": "fintech",
+  "type": "closed joint-stock",
+  "status": "dormant",
+  "assigned_team": [
+   "L-02",
+   "L-09"
+  ]
+ },
+ {
+  "org_id": "ORG-1139",
+  "name": "Baseel Company",
+  "sector": "telecom",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1140",
+  "name": "Ufuq Holding",
+  "sector": "retail",
+  "type": "LLC",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-06"
+  ]
+ },
+ {
+  "org_id": "ORG-1141",
+  "name": "Hijaz Estates",
+  "sector": "construction",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1142",
+  "name": "Tamayuz Logistics",
+  "sector": "energy",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1143",
+  "name": "Nawah Ventures",
+  "sector": "insurance",
+  "type": "closed joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-04"
+  ]
+ },
+ {
+  "org_id": "ORG-1144",
+  "name": "Masar Development",
+  "sector": "insurance",
+  "type": "branch of foreign company",
+  "status": "dormant",
+  "assigned_team": [
+   "L-03",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1145",
+  "name": "Rukn Estates",
+  "sector": "retail",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-10"
+  ]
+ },
+ {
+  "org_id": "ORG-1146",
+  "name": "Arabian Development",
+  "sector": "energy",
+  "type": "sole proprietorship",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1147",
+  "name": "Yamama Systems",
+  "sector": "education",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-05"
+  ]
+ },
+ {
+  "org_id": "ORG-1148",
+  "name": "Sadara Trading",
+  "sector": "logistics",
+  "type": "branch of foreign company",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-07"
+  ]
+ },
+ {
+  "org_id": "ORG-1149",
+  "name": "Tamayuz Services",
+  "sector": "agritech",
+  "type": "simple joint-stock",
+  "status": "active",
+  "assigned_team": [
+   "L-03",
+   "L-08"
+  ]
+ },
+ {
+  "org_id": "ORG-1150",
+  "name": "Nakheel Solutions",
+  "sector": "agritech",
+  "type": "LLC",
+  "status": "active",
+  "assigned_team": [
+   "L-01",
+   "L-08"
+  ]
+ }
+]

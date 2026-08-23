@@ -1,0 +1,14 @@
+CONTRACT C-03 — SOFTWARE LICENCE AGREEMENT
+Matter: ORG-1007 (Rawabi Industries)
+Parties: Rawabi Industries (Licensee) and Qimam Systems (Licensor)
+Language: English
+
+1. Term. Three (3) years from 1 January 2026, expiring 31 December 2028.
+3. Fees. Annual licence fee SAR 220,000, payable in advance each year.
+7. Liability. The Licensee's liability under this Agreement is capped at the annual licence fee,
+   EXCEPT that the Licensee's liability for breach of the licence scope, infringement, and any
+   indemnity given under Clause 8 shall be UNLIMITED.
+8. Indemnity. The Licensee indemnifies the Licensor against all losses arising from unauthorised
+   use, without limit.
+9. Governing Law. Laws of the Kingdom of Saudi Arabia; courts of Jeddah.
+12. Signatures. Executed by authorised representatives of both parties.

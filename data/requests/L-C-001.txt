@@ -1,0 +1,8 @@
+Request ID: L-C-001
+Matter: ORG-1007
+From: Faisal Al-Harbi <l02@rasikh.example>
+Requester member_id: L-02
+Type: contract_review
+Date: 2026-07-01
+
+Please review the Sadara supply agreement (C-01) — term, liability, and payment. Flag anything the board should see before renewal talks.

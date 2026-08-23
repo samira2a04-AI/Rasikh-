@@ -1,0 +1,8 @@
+Request ID: L-C-023
+Matter: ORG-1007
+From: Faisal Al-Harbi <l02@rasikh.example>
+Requester member_id: L-02
+Type: contract_review
+Date: 2026-07-01
+
+In the Sadara supply agreement (C-01), what does it say about intellectual property ownership of the machined designs?

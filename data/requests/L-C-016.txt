@@ -1,0 +1,8 @@
+Request ID: L-C-016
+Matter: ORG-1055
+From: Maha Al-Subaie <l09@rasikh.example>
+Requester member_id: L-09
+Type: obligation_check
+Date: 2026-07-01
+
+List Manar Energy's upcoming governance obligations and how urgent each is.

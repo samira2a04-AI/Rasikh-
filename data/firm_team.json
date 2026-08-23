@@ -1,0 +1,110 @@
+[
+ {
+  "member_id": "L-01",
+  "name": "Rana Al-Otaibi",
+  "role": "partner",
+  "practice": "corporate & governance",
+  "access": "firm_wide",
+  "can_approve": true
+ },
+ {
+  "member_id": "L-02",
+  "name": "Faisal Al-Harbi",
+  "role": "partner",
+  "practice": "commercial contracts",
+  "access": "firm_wide",
+  "can_approve": true
+ },
+ {
+  "member_id": "L-03",
+  "name": "Huda Al-Qahtani",
+  "role": "partner",
+  "practice": "litigation",
+  "access": "firm_wide",
+  "can_approve": true
+ },
+ {
+  "member_id": "L-04",
+  "name": "Omar Al-Dossari",
+  "role": "senior_associate",
+  "practice": "commercial contracts",
+  "access": [
+   "ORG-1007",
+   "ORG-1012",
+   "ORG-1033",
+   "ORG-1041"
+  ],
+  "can_approve": true
+ },
+ {
+  "member_id": "L-05",
+  "name": "Layla Al-Ghamdi",
+  "role": "associate",
+  "practice": "corporate & governance",
+  "access": [
+   "ORG-1007",
+   "ORG-1019",
+   "ORG-1055"
+  ],
+  "can_approve": false
+ },
+ {
+  "member_id": "L-06",
+  "name": "Tariq Al-Shammari",
+  "role": "associate",
+  "practice": "commercial contracts",
+  "access": [
+   "ORG-1012",
+   "ORG-1028",
+   "ORG-1060"
+  ],
+  "can_approve": false
+ },
+ {
+  "member_id": "L-07",
+  "name": "Noura Al-Mutairi",
+  "role": "associate",
+  "practice": "consultations",
+  "access": [
+   "ORG-1019",
+   "ORG-1033",
+   "ORG-1072"
+  ],
+  "can_approve": false
+ },
+ {
+  "member_id": "L-08",
+  "name": "Yousef Al-Zahrani",
+  "role": "paralegal",
+  "practice": "contracts support",
+  "access": [
+   "ORG-1007",
+   "ORG-1012"
+  ],
+  "can_approve": false
+ },
+ {
+  "member_id": "L-09",
+  "name": "Maha Al-Subaie",
+  "role": "paralegal",
+  "practice": "governance support",
+  "access": [
+   "ORG-1019",
+   "ORG-1055"
+  ],
+  "can_approve": false
+ },
+ {
+  "member_id": "L-10",
+  "name": "Khalid Al-Rasheed",
+  "role": "senior_associate",
+  "practice": "corporate & governance",
+  "access": [
+   "ORG-1028",
+   "ORG-1041",
+   "ORG-1055",
+   "ORG-1060"
+  ],
+  "can_approve": true
+ }
+]

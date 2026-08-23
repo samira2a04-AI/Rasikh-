@@ -1,0 +1,8 @@
+Request ID: L-C-011
+Matter: ORG-1060
+From: Khalid Al-Rasheed <l10@rasikh.example>
+Requester member_id: L-10
+Type: consultation
+Date: 2026-07-01
+
+For the Tharwa distribution deal (C-07), what's the deadline to stop it auto-renewing, and who owns that on our calendar?

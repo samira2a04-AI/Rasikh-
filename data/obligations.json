@@ -1,0 +1,68 @@
+[
+ {
+  "obl_id": "OB-01",
+  "org_id": "ORG-1012",
+  "type": "contract_renewal_notice",
+  "description": "C-02 non-renewal notice window opens (90 days before 15 Jul 2026 term end)",
+  "due_date": "2026-04-16",
+  "owner": "L-04",
+  "note": "Window to give notice; if no notice, C-02 auto-renews."
+ },
+ {
+  "obl_id": "OB-02",
+  "org_id": "ORG-1019",
+  "type": "board_meeting",
+  "description": "Tamayuz Fintech board meeting",
+  "due_date": "2026-07-05",
+  "owner": "L-01"
+ },
+ {
+  "obl_id": "OB-03",
+  "org_id": "ORG-1007",
+  "type": "board_meeting",
+  "description": "Rawabi Industries Q2 board meeting",
+  "due_date": "2026-07-20",
+  "owner": "L-02"
+ },
+ {
+  "obl_id": "OB-04",
+  "org_id": "ORG-1033",
+  "type": "filing",
+  "description": "Salam Healthcare annual governance filing",
+  "due_date": "2026-06-28",
+  "owner": "L-07",
+  "note": "Past due as of 2026-07-01."
+ },
+ {
+  "obl_id": "OB-05",
+  "org_id": "ORG-1055",
+  "type": "committee_meeting",
+  "description": "Manar Energy audit committee",
+  "due_date": "2026-07-25",
+  "owner": "L-10"
+ },
+ {
+  "obl_id": "OB-06",
+  "org_id": "ORG-1041",
+  "type": "contract_review",
+  "description": "Nakheel lease (C-05) annual review",
+  "due_date": "2026-08-15",
+  "owner": "L-04"
+ },
+ {
+  "obl_id": "OB-07",
+  "org_id": "ORG-1060",
+  "type": "contract_renewal_notice",
+  "description": "C-07 non-renewal notice window (60 days before 1 Apr 2027)",
+  "due_date": "2027-01-31",
+  "owner": "L-10"
+ },
+ {
+  "obl_id": "OB-08",
+  "org_id": "ORG-1028",
+  "type": "contract_renewal_notice",
+  "description": "C-09 non-renewal notice window (60 days before 1 Jun 2027)",
+  "due_date": "2027-04-01",
+  "owner": "L-10"
+ }
+]

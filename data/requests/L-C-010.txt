@@ -1,0 +1,8 @@
+Request ID: L-C-010
+Matter: ORG-1055
+From: Layla Al-Ghamdi <l05@rasikh.example>
+Requester member_id: L-05
+Type: contract_review
+Date: 2026-07-01
+
+مراجعة اتفاقية الخدمات (C-10) لصالح طاقة المنار: المسؤولية وبنود السداد، مع الإشارة إلى ما يستوجب مراجعة الهيئة الشرعية.

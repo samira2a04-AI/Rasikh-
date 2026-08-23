@@ -1,0 +1,8 @@
+Request ID: L-C-002
+Matter: ORG-1012
+From: Omar Al-Dossari <l04@rasikh.example>
+Requester member_id: L-04
+Type: contract_review
+Date: 2026-07-01
+
+Review the Ufuq logistics agreement (C-02). I specifically need the renewal mechanics and the deadline to act.
