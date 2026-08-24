@@ -1,0 +1,3 @@
+INFO:     127.0.0.1:49753 - "GET /counts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49753 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64402 - "OPTIONS /counts HTTP/1.1" 200 OK

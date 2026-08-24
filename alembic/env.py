@@ -5,9 +5,25 @@ from sqlalchemy import pool
 
 from alembic import context
 
+# Application imports: the declarative Base plus every model module, so that
+# all 16 tables are registered on Base.metadata for autogenerate support.
+# ``prepend_sys_path = .`` in alembic.ini makes the project root importable
+# when Alembic is run from the repository root.
+from app.database.base import Base
+import app.models  # noqa: F401  — importing registers all models with Base.metadata
+
+# Reuse the application's database configuration (the DATABASE_URL environment
+# variable, loaded via python-dotenv in app.database.connection) instead of
+# duplicating credentials in this file or in alembic.ini.
+from app.database.connection import DATABASE_URL
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Point Alembic at the application-configured database URL, overriding the
+# placeholder ``sqlalchemy.url`` value in alembic.ini.
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -16,9 +32,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
