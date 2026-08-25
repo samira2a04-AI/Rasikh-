@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from app.models.matter_assignment import MatterAssignment
     from app.models.obligation import Obligation
     from app.models.request import Request
+    from app.models.user import User
 
 
 class TeamMember(Base):
@@ -72,6 +73,11 @@ class TeamMember(Base):
     )
     audit_events: Mapped[list[AuditEvent]] = relationship(
         "AuditEvent", back_populates="actor"
+    )
+    # The platform account(s) mapped to this firm member (0..1 by convention —
+    # the demos use exactly one account per member, but the schema allows more).
+    user: Mapped[Optional[User]] = relationship(
+        "User", back_populates="member", uselist=False
     )
 
     def __repr__(self) -> str:

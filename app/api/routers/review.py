@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.auth_dependencies import get_current_user
 from app.api.dependencies import get_session, transactional
 from app.api.schemas import (
     CitationResponse,
@@ -17,7 +18,7 @@ from app.api.schemas import (
 from app.models import Request
 from app.services import workflow
 
-router = APIRouter(prefix="/requests", tags=["review"])
+router = APIRouter(prefix="/requests", tags=["review"], dependencies=[Depends(get_current_user)])
 
 
 def _build_review_response(request_id: str, result) -> ReviewResponse:

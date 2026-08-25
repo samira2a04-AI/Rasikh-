@@ -6,12 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.auth_dependencies import get_current_user
 from app.api.dependencies import get_session, transactional
 from app.api.schemas import DraftCreate, DraftResponse
 from app.models import Draft
 from app.services import drafting, workflow
 
-router = APIRouter(prefix="/requests", tags=["drafts"])
+router = APIRouter(prefix="/requests", tags=["drafts"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/{request_id}/drafts", response_model=DraftResponse, status_code=201)

@@ -25,9 +25,51 @@ from app.models import (
     Finding,
     Obligation,
     Request,
+    User,
 )
 
-client = TestClient(app)
+def _ensure_suite_user() -> str:
+    """Get-or-create a dedicated suite user and return a valid JWT for it.
+
+    Business endpoints now require authentication; this keeps every existing
+    API test working unchanged by attaching a Bearer token automatically.
+    """
+    from app.core.security import create_access_token, hash_password
+
+    suite_email = "rasikh-api-suite@rasikh.test"
+    with SessionLocal() as session:
+        user = session.execute(
+            select(User).where(User.email == suite_email)
+        ).scalar_one_or_none()
+        if user is None:
+            user = User(
+                email=suite_email,
+                hashed_password=hash_password("suite-password-1"),
+                role="admin",  # the legacy API suite exercises POST /obligations/sweep
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        elif user.role != "admin":
+            user.role = "admin"
+            session.commit()
+        return create_access_token(str(user.id))
+
+
+class _AuthenticatedClient(TestClient):
+    """TestClient that attaches a Bearer token to every request."""
+
+    def __init__(self, app, token: str):  # type: ignore[no-untyped-def]
+        super().__init__(app)
+        self._auth_headers = {"Authorization": f"Bearer {token}"}
+
+    def request(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+        headers = kwargs.pop("headers", None) or {}
+        merged = {**self._auth_headers, **headers}
+        return super().request(*args, headers=merged, **kwargs)
+
+
+client = _AuthenticatedClient(app, _ensure_suite_user())
 
 REFERENCE_DATE = "2026-07-01"
 ORG = "ORG-1007"

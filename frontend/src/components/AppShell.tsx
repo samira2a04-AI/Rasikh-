@@ -1,79 +1,54 @@
-"use client";
-
 import { Outlet, useLocation } from "react-router-dom";
-import { Logo } from "./Logo";
-import { SidebarLink } from "./SidebarLink";
+import { SidebarNavigation } from "./SidebarNavigation";
+import { useAuth } from "../auth/AuthContext";
 
-const navigation = [
-  { label: "Dashboard", to: "/dashboard" },
-  { label: "Requests & matters", to: "/requests" },
-  { label: "Reviews", to: "/reviews" },
-  { label: "Drafts", to: "/drafts" },
-  { label: "Approvals", to: "/approvals" },
-  { label: "Obligations", to: "/obligations" },
-  { label: "History", to: "/history" },
-];
+const pageNames: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/requests": "Requests & matters",
+  "/reviews": "Reviews",
+  "/drafts": "Drafts",
+  "/approvals": "Approvals",
+  "/obligations": "Obligations",
+  "/history": "History",
+};
+
+function getPageName(pathname: string): string {
+  if (pathname.startsWith("/requests/")) {
+    return "Matter record";
+  }
+  return pageNames[pathname] ?? "Rasikh";
+}
 
 export function AppShell() {
   const { pathname } = useLocation();
-  const pageName = pathname.startsWith("/requests/") 
-    ? "Matter record" 
-    : pathname === "/dashboard"
-    ? "Dashboard"
-    : pathname === "/reviews"
-    ? "Reviews"
-    : pathname === "/drafts"
-    ? "Drafts"
-    : pathname === "/approvals"
-    ? "Approvals"
-    : pathname === "/obligations"
-    ? "Obligations"
-    : pathname === "/history"
-    ? "History"
-    : "Rasikh";
-  
+  const { user, role, logout } = useAuth();
+
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand-lockup">
-          <div className="brand-mark">R</div>
-          <span>
-            <strong>Rasikh</strong>
-            <small>Legal knowledge</small>
-          </span>
-        </div>
-        <nav aria-label="Primary navigation">
-          <p>Workspace</p>
-          {navigation.map((item) => {
-            const isActive = pathname === item.to || (item.to === "/requests" && pathname.startsWith("/requests/"));
-            return (
-              <SidebarLink
-                key={item.to}
-                to={item.to}
-                isActive={isActive}
-              >
-                {item.label}
-              </SidebarLink>
-            );
-          })}
-        </nav>
-        <footer>
-          <div className="status-indicator">
-            <div></div>
-            System connected
-          </div>
-        </footer>
-      </aside>
-      
+      <SidebarNavigation />
+
       <div className="app-workspace">
         <header className="topbar">
-          <p><strong>Legal knowledge</strong></p>
-          <div>
-            <span>{pageName}</span>
-            <div className="status-indicator status-indicator--emerald" title="System connected"></div>
+          <p className="topbar-context">Rasikh workspace</p>
+          <div className="topbar-session">
+            <p className="topbar-page">{getPageName(pathname)}</p>
+            {user && (
+              <span className={`role-badge role-badge--${role ?? "member"}`}>
+                {role === "admin" ? "Admin" : "Member"}
+              </span>
+            )}
+            {user && <span className="topbar-user">{user.email}</span>}
+            {user && user.memberName && (
+              <span className="topbar-user">· {user.memberName}</span>
+            )}
+            {user && (
+              <button type="button" className="logout-button" onClick={logout}>
+                Sign out
+              </button>
+            )}
           </div>
         </header>
-        
+
         <main className="app-main">
           <Outlet />
         </main>

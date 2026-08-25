@@ -22,6 +22,7 @@ from app.models.organisation import Organisation
 from app.models.request import Request
 from app.models.review_standard_clause import ReviewStandardClause
 from app.models.team_member import TeamMember
+from app.models.user import User
 
 __all__ = [
     "Base",
@@ -41,4 +42,5 @@ __all__ = [
     "Request",
     "ReviewStandardClause",
     "TeamMember",
+    "User",
 ]

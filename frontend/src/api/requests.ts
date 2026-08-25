@@ -8,6 +8,17 @@ export function submitRequest(body: RequestSubmit): Promise<RequestResponse> {
   });
 }
 
+export function listRequests(
+  limit = 50,
+  offset = 0,
+): Promise<RequestResponse[]> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  return fetchJson<RequestResponse[]>(`/requests?${params.toString()}`);
+}
+
 export function getRequest(requestId: string): Promise<RequestResponse> {
   return fetchJson<RequestResponse>(`/requests/${encodeURIComponent(requestId)}`);
 }

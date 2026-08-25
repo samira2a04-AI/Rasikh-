@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.auth_dependencies import require_admin
 from app.api.dependencies import get_session, transactional
 from app.api.schemas import (
     EscalationCreatedResponse,
@@ -17,7 +18,11 @@ from app.services import workflow
 router = APIRouter(prefix="/obligations", tags=["obligations"])
 
 
-@router.post("/sweep", response_model=ObligationSweepResponse)
+@router.post(
+    "/sweep",
+    response_model=ObligationSweepResponse,
+    dependencies=[Depends(require_admin)],
+)
 def sweep_obligations(
     body: ObligationSweepRequest,
     session: Session = Depends(get_session),

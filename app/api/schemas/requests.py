@@ -9,10 +9,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class RequestSubmit(BaseModel):
-    """Submit a new request and classify it."""
+    """Submit a new request and classify it.
+
+    ``requester_id`` is optional: when omitted, the backend derives it from the
+    authenticated user's mapped team member (``users.member_id``). It may still
+    be supplied explicitly (e.g. by service/API callers) and is validated
+    against ``team_member`` at intake.
+    """
 
     request_id: str
-    requester_id: str
+    requester_id: Optional[str] = None
     raw_content: str
     org_id: Optional[str] = None
     request_type: Optional[str] = Field(

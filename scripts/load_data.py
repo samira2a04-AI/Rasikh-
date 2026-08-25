@@ -54,6 +54,7 @@ from app.models import (
     ReviewStandardClause,
     TeamMember,
 )
+from scripts.seed_demo_users import seed_demo_users
 
 DATA_DIR = REPO_ROOT / "data"
 
@@ -609,6 +610,13 @@ def main() -> int:
             count = count_session.query(model).count()
             print(f"  {label}: {count}")
     print(f"  expected matter_assignment pairs from sources: {len(assignment_pairs)}")
+
+    # Create/link the demo development accounts (idempotent) so the platform is
+    # ready for end-to-end testing with predefined credentials.
+    print("\nDemo development users:")
+    with SessionLocal() as seed_session, seed_session.begin():
+        seed_demo_users(seed_session)
+
     return 0
 
 

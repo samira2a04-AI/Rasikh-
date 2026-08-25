@@ -6,7 +6,11 @@ export type RequestType =
 
 export interface RequestSubmit {
   request_id: string;
-  requester_id: string;
+  /**
+   * Optional: when omitted the backend derives it from the authenticated
+   * user's mapped firm/team member. Do not require the user to type it.
+   */
+  requester_id?: string | null;
   raw_content: string;
   org_id?: string | null;
   request_type?: RequestType | null;
@@ -154,4 +158,53 @@ export interface CountsResponse {
 
 export interface HealthResponse {
   status: string;
+}
+
+// ---------------------------------------------------------------------------
+// Authentication / authorization
+// ---------------------------------------------------------------------------
+
+export type UserRole = "member" | "admin";
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/** Public representation of a user returned by POST /auth/register. */
+export interface AuthUserResponse {
+  id: number;
+  email: string;
+  is_active: boolean;
+  role: UserRole;
+  created_at: string | null;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+}
+
+/** Public representation of the firm/team member an account maps to. */
+export interface TeamMemberInfo {
+  member_id: string;
+  name: string;
+  role: string;
+  practice: string | null;
+  can_approve: boolean;
+}
+
+/** Profile of the authenticated user, including their mapped team member. */
+export interface MeResponse {
+  id: number;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+  member_id: string | null;
+  member: TeamMemberInfo | null;
 }

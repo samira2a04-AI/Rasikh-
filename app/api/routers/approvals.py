@@ -5,11 +5,12 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.auth_dependencies import get_current_user
 from app.api.dependencies import get_session, transactional
 from app.api.schemas import ApprovalRequest, ApprovalResponse
 from app.services import workflow
 
-router = APIRouter(prefix="/drafts", tags=["approvals"])
+router = APIRouter(prefix="/drafts", tags=["approvals"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/{draft_id}/approve", response_model=ApprovalResponse)
