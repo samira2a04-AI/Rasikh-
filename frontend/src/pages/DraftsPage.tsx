@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "../api/client";
@@ -12,11 +12,18 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { RequestContextBar } from "../components/RequestContextBar";
 import { StatusIndicator } from "../components/StatusIndicator";
 
 export function DraftsPage() {
   const queryClient = useQueryClient();
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  // Request context: /drafts?request={id} is used by the Unified Request
+  // Workspace so the user keeps their request context (refresh-safe).
+  const [searchParams] = useSearchParams();
+  const contextRequestId = searchParams.get("request");
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    contextRequestId,
+  );
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -116,6 +123,9 @@ export function DraftsPage() {
 
   return (
     <div>
+      {contextRequestId && (
+        <RequestContextBar requestId={contextRequestId} />
+      )}
       <PageHeader
         eyebrow="Rasikh workspace"
         title="Drafts"

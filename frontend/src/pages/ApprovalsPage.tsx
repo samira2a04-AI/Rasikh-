@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { approveDraft, rejectDraft } from "../api/approvals";
@@ -14,6 +14,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { RequestContextBar } from "../components/RequestContextBar";
 import { StatusIndicator } from "../components/StatusIndicator";
 
 /** States from which the backend accepts a decision (app/services/approval.py). */
@@ -21,7 +22,13 @@ const OPEN_STATES = new Set(["awaiting_approval", "edited"]);
 
 export function ApprovalsPage() {
   const queryClient = useQueryClient();
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  // Request context: /approvals?request={id} comes from the Unified Request
+  // Workspace (refresh-safe).
+  const [searchParams] = useSearchParams();
+  const contextRequestId = searchParams.get("request");
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    contextRequestId,
+  );
   const [decision, setDecision] = useState<ApprovalResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -59,15 +66,26 @@ export function ApprovalsPage() {
   }
 
   function onDecisionError(err: unknown) {
-    if (
-      err instanceof ApiError &&
-      err.status === 403 &&
-      typeof err.detail === "string" &&
-      err.detail.includes("approval authority")
-    ) {
-      setErrorMessage(
-        `Reviewer ${reviewerId ?? ""} does not have approval authority (can_approve=false).`,
-      );
+    if (err instanceof ApiError && err.status === 403) {
+      if (
+        typeof err.detail === "string" &&
+        err.detail.includes("approval authority")
+      ) {
+        setErrorMessage(
+          `Reviewer ${reviewerId ?? ""} does not have approval authority (can_approve=false).`,
+        );
+      } else if (
+        typeof err.detail === "string" &&
+        (err.detail.includes("cannot approve") || err.detail.includes("created draft"))
+      ) {
+        setErrorMessage(
+          "You cannot approve or reject a draft that you created. Another authorized reviewer must perform the approval decision.",
+        );
+      } else {
+        setErrorMessage(
+          typeof err.detail === "string" ? err.detail : "Forbidden.",
+        );
+      }
     } else if (err instanceof ApiError && err.status === 404) {
       setErrorMessage("This draft or reviewer could not be found.");
     } else if (err instanceof ApiError && err.status === 409) {
@@ -148,6 +166,9 @@ export function ApprovalsPage() {
   }
   return (
     <div>
+      {contextRequestId && (
+        <RequestContextBar requestId={contextRequestId} />
+      )}
       <PageHeader
         eyebrow="Rasikh workspace"
         title="Approvals"
@@ -239,40 +260,53 @@ export function ApprovalsPage() {
       {currentDraft() ? (
         <Card className="mt-md">
           <p className="eyebrow">Decision — v{currentDraft()?.version}</p>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <button
-              type="button"
-              className="button"
-              disabled={
-                approveMutation.isPending ||
-                rejectMutation.isPending ||
-                !reviewerId
-              }
-              onClick={() => handleDecision("approve")}
-            >
-              {approveMutation.isPending ? "Recording…" : "Approve"}
-            </button>
-            <button
-              type="button"
-              className="logout-button"
-              disabled={
-                approveMutation.isPending ||
-                rejectMutation.isPending ||
-                !reviewerId
-              }
-              onClick={() => handleDecision("reject")}
-            >
-              {rejectMutation.isPending ? "Recording…" : "Reject"}
-            </button>
-            {(approveMutation.isPending || rejectMutation.isPending) && (
-              <span className="auth-subtitle">Recording decision…</span>
-            )}
-          </div>
-          {!canApproveHint && (
-            <p className="auth-subtitle">
-              Your linked member does not carry the can_approve capability; the
-              backend will refuse the decision if it is not permitted.
-            </p>
+          {currentDraft()?.created_by && reviewerId && currentDraft()?.created_by === reviewerId ? (
+            <div>
+              <p style={{ fontWeight: 600, fontSize: "16px", marginBottom: "4px" }}>
+                Awaiting another reviewer
+              </p>
+              <p className="auth-subtitle">
+                You created this draft ({currentDraft()?.created_by}). Under separation of duties rules, the draft creator cannot approve or reject their own draft. Another authorized reviewer must perform the approval decision.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <button
+                  type="button"
+                  className="button"
+                  disabled={
+                    approveMutation.isPending ||
+                    rejectMutation.isPending ||
+                    !reviewerId
+                  }
+                  onClick={() => handleDecision("approve")}
+                >
+                  {approveMutation.isPending ? "Recording…" : "Approve"}
+                </button>
+                <button
+                  type="button"
+                  className="logout-button"
+                  disabled={
+                    approveMutation.isPending ||
+                    rejectMutation.isPending ||
+                    !reviewerId
+                  }
+                  onClick={() => handleDecision("reject")}
+                >
+                  {rejectMutation.isPending ? "Recording…" : "Reject"}
+                </button>
+                {(approveMutation.isPending || rejectMutation.isPending) && (
+                  <span className="auth-subtitle">Recording decision…</span>
+                )}
+              </div>
+              {!canApproveHint && (
+                <p className="auth-subtitle">
+                  Your linked member does not carry the can_approve capability; the
+                  backend will refuse the decision if it is not permitted.
+                </p>
+              )}
+            </>
           )}
         </Card>
       ) : (

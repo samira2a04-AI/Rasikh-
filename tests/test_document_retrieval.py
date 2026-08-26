@@ -360,7 +360,7 @@ def test_no_llm_or_ai_component_involved():
         elif isinstance(node, ast.ImportFrom) and node.module:
             imported_roots.add(node.module.split(".")[0].lower())
 
-    assert imported_roots <= {"sqlalchemy", "app", "__future__"}, (
+    assert imported_roots <= {"sqlalchemy", "app", "__future__", "numpy"}, (
         f"unexpected imports: {imported_roots}"
     )
     banned = {

@@ -139,10 +139,10 @@ def classify_request(
     request = session.get(Request, request_id)
     if request is None:
         raise RequestIntakeError(f"unknown request_id {request_id!r}")
-    if request.status != STATUS_INTAKE:
+    if request.status not in (STATUS_INTAKE, "insufficient"):
         raise RequestIntakeError(
             f"request {request_id!r} has status {request.status!r}; "
-            f"only {STATUS_INTAKE!r} requests can be classified"
+            f"only {STATUS_INTAKE!r} or 'insufficient' requests can be classified"
         )
 
     request.request_type = request_type

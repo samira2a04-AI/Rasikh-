@@ -17,6 +17,11 @@ export interface RequestSubmit {
   created_at?: string | null;
 }
 
+export interface RequestResolve {
+  org_id: string;
+  request_type: RequestType;
+}
+
 export interface RequestResponse {
   request_id: string;
   requester_id: string;
@@ -32,6 +37,13 @@ export interface ReviewRequest {
   contract_id?: string | null;
   reference_date?: string | null;
   suppressed_obligation_ids?: string[] | null;
+}
+
+export interface ContractSummary {
+  contract_id: string;
+  title: string;
+  clause_count: number;
+  has_clauses: boolean;
 }
 
 export interface CitationResponse {
@@ -50,6 +62,11 @@ export interface FindingResponse {
   sharia_sensitive_flag: boolean;
   tricky_case_type: string | null;
   citations: CitationResponse[];
+  status: string;
+  reviewed_by: string | null;
+  reviewed_by_name?: string | null;
+  reviewed_at: string | null;
+  reviewer_notes: string | null;
 }
 
 export interface ObligationResponse {
@@ -90,6 +107,7 @@ export interface DraftResponse {
   approval_state: string;
   created_at: string;
   updated_at: string;
+  created_by?: string | null;
 }
 
 export interface ApprovalRequest {
@@ -112,7 +130,7 @@ export interface ObligationSweepRequest {
   suppressed_obligation_ids?: string[] | null;
 }
 
-export interface ObligationSnapshotResponse extends ObligationResponse {}
+export interface ObligationSnapshotResponse extends ObligationResponse { }
 
 export interface EscalationCreatedResponse {
   escalation_id: string;
@@ -149,6 +167,97 @@ export interface RequestHistoryResponse {
   events: AuditEventResponse[];
 }
 
+export interface DraftSummary {
+  draft_id: string;
+  version: number;
+  approval_state: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApprovalSummary {
+  approval_decision_id: string;
+  draft_id: string;
+  reviewer_id: string;
+  decision: string;
+  draft_version: number;
+  decided_at: string;
+}
+
+export interface FindingSummary {
+  finding_id: string;
+  statement: string;
+  grounded: boolean;
+  risk_rating: string | null;
+  sharia_sensitive_flag: boolean;
+}
+
+export interface ObligationSummary {
+  obligation_id: string;
+  type: string;
+  description: string;
+  due_date: string;
+  band: string;
+  owner_id: string;
+}
+
+export interface EscalationSummary {
+  escalation_id: string;
+  reason: string;
+  routed_to_id: string;
+  obligation_id: string | null;
+  created_at: string;
+}
+
+export interface SourceSummary {
+  contract_id: string;
+  title: string;
+}
+
+export interface RequestViewCounts {
+  drafts: number;
+  approvals: number;
+  findings: number;
+  obligations: number;
+  escalations: number;
+}
+
+export interface AnalysisRunSummary {
+  analysis_run_id: string;
+  status: "running" | "completed" | "failed";
+  engine?: string | null;
+  summary?: string | null;
+  finding_count: number;
+  high_severity_count: number;
+  grounded_count: number;
+  ungrounded_count: number;
+  created_at: string;
+  completed_at?: string | null;
+}
+
+export interface RequestView {
+  request: RequestResponse;
+  answer: string | null;
+  analysis: AnalysisRunSummary | null;
+  drafts: DraftSummary[];
+  approvals: ApprovalSummary[];
+  findings: FindingSummary[];
+  obligations: ObligationSummary[];
+  escalations: EscalationSummary[];
+  sources: SourceSummary[];
+  counts: RequestViewCounts;
+}
+
+export interface RequestRegistryRow {
+  request: RequestResponse;
+  has_answer: boolean;
+  draft_count: number;
+  approval_count: number;
+  finding_count: number;
+  obligation_count: number;
+}
+
 export interface CountsResponse {
   requests_by_status: Record<string, number>;
   drafts_by_approval_state: Record<string, number>;
@@ -157,6 +266,14 @@ export interface CountsResponse {
 }
 
 export interface HealthResponse {
+  status: string;
+}
+
+export interface Organisation {
+  org_id: string;
+  name: string;
+  sector: string;
+  type: string;
   status: string;
 }
 

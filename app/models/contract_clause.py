@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, Index, Text, text as sa_text
+from sqlalchemy import ForeignKey, Index, Text, text as sa_text, Float, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -47,6 +47,7 @@ class ContractClause(Base):
     clause_label: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     checklist_area: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    embedding: Mapped[Optional[list[float]]] = mapped_column(JSON, nullable=True)
 
     # Relationships (as documented in docs/data-schema.md §4)
     contract: Mapped[Contract] = relationship(

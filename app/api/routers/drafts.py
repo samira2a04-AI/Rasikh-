@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.api.auth_dependencies import get_current_user
 from app.api.dependencies import get_session, transactional
 from app.api.schemas import DraftCreate, DraftResponse
-from app.models import Draft
+from app.models import Draft, User
 from app.services import drafting, workflow
 
 router = APIRouter(prefix="/requests", tags=["drafts"], dependencies=[Depends(get_current_user)])
@@ -20,6 +20,7 @@ def create_draft(
     request_id: str,
     body: DraftCreate,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ) -> DraftResponse:
     """Create a new draft version for a request."""
     with transactional(session):
@@ -28,6 +29,7 @@ def create_draft(
             request_id=request_id,
             content=body.content,
             created_at=body.created_at,
+            created_by=current_user.member_id,
         )
         session.commit()
     return DraftResponse.model_validate(draft)

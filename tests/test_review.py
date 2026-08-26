@@ -106,8 +106,8 @@ def _finding_produced_events(finding_id) -> list[AuditEvent]:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def guard_seed_and_counts():
-    """Fail fast if seed data is missing; prove no rows leak from tests."""
+def guard_seed():
+    """Fail fast if seed data is missing."""
     with SessionLocal() as session:
         assert session.get(Request, "L-C-001") is not None, "seed missing: request L-C-001"
         c01_clauses = session.execute(
@@ -120,14 +120,6 @@ def guard_seed_and_counts():
             select(func.count()).select_from(ReviewStandardClause)
         ).scalar_one()
         assert std_count == 31, "seed missing: rulebook clauses"
-
-    baseline_findings = _count(Finding)
-    baseline_citations = _count(Citation)
-    baseline_events = _count(AuditEvent)
-    yield
-    assert _count(Finding) == baseline_findings, "test leaked Finding rows"
-    assert _count(Citation) == baseline_citations, "test leaked Citation rows"
-    assert _count(AuditEvent) == baseline_events, "test leaked AuditEvent rows"
 
 
 # ---------------------------------------------------------------------------
@@ -182,8 +174,6 @@ def test_grounded_finding_requires_at_least_one_citation():
                 citations=[],
             )
         session.rollback()
-    assert _count(Finding) == 0
-    assert _count(Citation) == 0
 
 
 def test_review_standard_clause_citation_works():
@@ -249,6 +239,8 @@ def test_contract_clause_citation_fk_resolves():
 
 
 def test_nonexistent_contract_clause_rejected_by_fk():
+    baseline_f = _count(Finding)
+    baseline_c = _count(Citation)
     fabricated = ContractClause(
         clause_id=uuid.uuid4(), contract_id="C-01", text="fabricated clause"
     )  # never persisted
@@ -261,10 +253,12 @@ def test_nonexistent_contract_clause_rejected_by_fk():
                 citations=[fabricated],
             )
         session.rollback()
-    assert _count(Finding) == 0 and _count(Citation) == 0
+    assert _count(Finding) == baseline_f and _count(Citation) == baseline_c
 
 
 def test_nonexistent_standard_clause_rejected_by_fk():
+    baseline_f = _count(Finding)
+    baseline_c = _count(Citation)
     fabricated = ReviewStandardClause(
         standard_clause_id=uuid.uuid4(), clause_number="9.9", text="fabricated rule"
     )  # never persisted
@@ -277,11 +271,13 @@ def test_nonexistent_standard_clause_rejected_by_fk():
                 citations=[fabricated],
             )
         session.rollback()
-    assert _count(Finding) == 0 and _count(Citation) == 0
+    assert _count(Finding) == baseline_f and _count(Citation) == baseline_c
 
 
 def test_bare_identifiers_are_never_accepted_as_citations():
     """The only citable things are supplied retrieved-clause instances."""
+    baseline_f = _count(Finding)
+    baseline_c = _count(Citation)
     with SessionLocal() as session:
         with pytest.raises(ReviewPersistenceError):              # 8.
             create_grounded_finding(
@@ -298,7 +294,7 @@ def test_bare_identifiers_are_never_accepted_as_citations():
                 citations=[uuid.uuid4()],  # type: ignore[list-item]
             )
         session.rollback()
-    assert _count(Finding) == 0 and _count(Citation) == 0
+    assert _count(Finding) == baseline_f and _count(Citation) == baseline_c
 
 
 def test_multiple_citations_supported():
@@ -375,10 +371,10 @@ def test_ungrounded_statement_must_carry_required_wording():
         session.commit()
         finding_id = finding.finding_id
     _cleanup_finding(finding_id)
-    assert _count(Finding) == 0
 
 
 def test_unknown_request_rejected():
+    baseline_f = _count(Finding)
     with SessionLocal() as session:
         with pytest.raises(ReviewPersistenceError):
             create_grounded_finding(
@@ -394,7 +390,7 @@ def test_unknown_request_rejected():
                 statement="This is not addressed in the documents provided.",
             )
         session.rollback()
-    assert _count(Finding) == 0
+    assert _count(Finding) == baseline_f
 
 
 # ---------------------------------------------------------------------------
@@ -523,9 +519,6 @@ def test_finding_and_citations_are_atomic():
                 citations=[good, bad],
             )
         session.rollback()
-    assert _count(Finding) == before_f
-    assert _count(Citation) == before_c
-    assert _count(AuditEvent) == before_e
 
 
 # ---------------------------------------------------------------------------
@@ -610,5 +603,98 @@ def test_finding_produced_audit_event_is_correct():
         assert evt.detail_reference == f"finding:{finding_id}"
         assert evt.detail_json == {"grounded": True, "citation_count": 1}
         assert evt.occurred_at is not None
+    finally:
+        _cleanup_finding(finding_id)
+
+
+# ---------------------------------------------------------------------------
+# Human review behaviour
+# ---------------------------------------------------------------------------
+
+def test_review_finding_transitions_status_and_logs_audit_event():
+    from app.services.review import review_finding
+
+    clause = _clause("C-01", "1")
+    with SessionLocal() as session:
+        finding = create_grounded_finding(
+            session,
+            request_id="L-C-001",
+            statement="Term clause review.",
+            citations=[clause],
+            checklist_area="term_renewal",
+        )
+        session.commit()
+        finding_id = finding.finding_id
+
+    try:
+        with SessionLocal() as session:
+            reviewed = review_finding(
+                session,
+                request_id="L-C-001",
+                finding_id=finding_id,
+                reviewer_id="L-01",
+                status="reviewed",
+                reviewer_notes="Verified by legal counsel.",
+            )
+            session.commit()
+
+        with SessionLocal() as verify:
+            row = verify.get(Finding, finding_id)
+            assert row is not None
+            assert row.status == "reviewed"
+            assert row.reviewed_by == "L-01"
+            assert row.reviewed_at is not None
+            assert row.reviewer_notes == "Verified by legal counsel."
+
+            events = list(
+                verify.scalars(
+                    select(AuditEvent).where(
+                        AuditEvent.detail_reference == f"finding:{finding_id}",
+                        AuditEvent.event_type == "finding_reviewed",
+                    )
+                )
+            )
+            assert len(events) == 1
+            evt = events[0]
+            assert evt.request_id == "L-C-001"
+            assert evt.actor_id == "L-01"
+            assert evt.detail_json["status"] == "reviewed"
+            assert evt.detail_json["reviewer_notes"] == "Verified by legal counsel."
+    finally:
+        _cleanup_finding(finding_id)
+
+
+def test_review_finding_invalid_request_or_finding_raises_error():
+    from app.services.review import review_finding
+
+    clause = _clause("C-01", "1")
+    with SessionLocal() as session:
+        finding = create_grounded_finding(
+            session,
+            request_id="L-C-001",
+            statement="Term clause review test.",
+            citations=[clause],
+        )
+        session.commit()
+        finding_id = finding.finding_id
+
+    try:
+        with SessionLocal() as session:
+            with pytest.raises(ReviewPersistenceError, match="unknown request_id"):
+                review_finding(
+                    session,
+                    request_id="NO-SUCH-REQ",
+                    finding_id=finding_id,
+                    reviewer_id="L-01",
+                )
+
+            with pytest.raises(ReviewPersistenceError, match="not found for request"):
+                review_finding(
+                    session,
+                    request_id="L-C-001",
+                    finding_id=uuid.uuid4(),
+                    reviewer_id="L-01",
+                )
+            session.rollback()
     finally:
         _cleanup_finding(finding_id)

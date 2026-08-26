@@ -7,6 +7,7 @@ Importing this package registers every model class with ``Base.metadata``
 
 from app.database.base import Base
 from app.models.access_decision import AccessDecision
+from app.models.analysis_run import AnalysisRun
 from app.models.approval_decision import ApprovalDecision
 from app.models.audit_event import AuditEvent
 from app.models.citation import Citation
@@ -27,6 +28,7 @@ from app.models.user import User
 __all__ = [
     "Base",
     "AccessDecision",
+    "AnalysisRun",
     "ApprovalDecision",
     "AuditEvent",
     "Citation",

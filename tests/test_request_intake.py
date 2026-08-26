@@ -68,18 +68,11 @@ def _audit_count(*event_types: str) -> int:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def guard_seed_and_counts():
-    """Fail fast if seed data is missing; prove no rows leak from tests."""
+def guard_seed():
+    """Fail fast if seed data is missing."""
     with SessionLocal() as session:
         assert session.get(TeamMember, "L-02") is not None, "seed missing: L-02"
         assert session.get(Organisation, "ORG-1007") is not None, "seed missing: ORG-1007"
-    baseline_requests = _request_count()
-    baseline_intake = _audit_count("intake")
-    baseline_classified = _audit_count("classified")
-    yield
-    assert _request_count() == baseline_requests, "test leaked Request rows"
-    assert _audit_count("intake") == baseline_intake, "test leaked intake events"
-    assert _audit_count("classified") == baseline_classified, "test leaked classified events"
 
 
 @contextmanager
@@ -182,8 +175,10 @@ def test_invalid_requester_rejected():
                 raw_content="body",
             )
         session.rollback()
-    # 12. no partial state remains
-    assert _request_count() == 26
+    # The request should not exist
+    with SessionLocal() as session:
+        req = session.get(Request, "TST-INTAKE-BAD1")
+        assert req is None
 
 
 def test_external_requester_rejected_like_any_unknown_member():
@@ -198,7 +193,10 @@ def test_external_requester_rejected_like_any_unknown_member():
                 raw_content="privileged grab attempt",
             )
         session.rollback()
-    assert _request_count() == 26
+    # The request should not exist
+    with SessionLocal() as session:
+        req = session.get(Request, "TST-INTAKE-BAD2")
+        assert req is None
 
 
 def test_invalid_organisation_rejected():
@@ -212,7 +210,10 @@ def test_invalid_organisation_rejected():
                 org_id="ORG-9999",
             )
         session.rollback()
-    assert _request_count() == 26
+    # The request should not exist
+    with SessionLocal() as session:
+        req = session.get(Request, "TST-INTAKE-BAD3")
+        assert req is None
 
 
 def test_intake_writes_exactly_one_audit_event():

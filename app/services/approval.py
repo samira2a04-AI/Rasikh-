@@ -109,6 +109,12 @@ def _decide(
     draft = _load_current_draft(session, draft_id)
     _validate_reviewer(session, reviewer_id)
 
+    if draft.created_by is not None and draft.created_by == reviewer_id:
+        raise ApprovalWorkflowError(
+            f"reviewer {reviewer_id!r} created draft {draft.draft_id!r} "
+            "and cannot approve or reject their own draft"
+        )
+
     if draft.approval_state not in _OPEN_STATES:
         raise ApprovalWorkflowError(
             f"draft {draft_id!r} is {draft.approval_state!r}; a decision has "

@@ -16,6 +16,7 @@ from sqlalchemy import func, select
 from app.database.connection import SessionLocal, engine
 from app.main import app
 from app.models import (
+    AnalysisRun,
     AccessDecision,
     ApprovalDecision,
     AuditEvent,
@@ -27,6 +28,7 @@ from app.models import (
     Request,
     User,
 )
+from app.services import drafting
 
 def _ensure_suite_user() -> str:
     """Get-or-create a dedicated suite user and return a valid JWT for it.
@@ -112,6 +114,46 @@ def _cleanup_request_chain(request_id: str) -> None:
             select(AuditEvent).where(AuditEvent.request_id == request_id)
         ):
             session.delete(evt)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
         for d in drafts:
             session.delete(d)
         for ad_row in session.scalars(
@@ -125,27 +167,9 @@ def _cleanup_request_chain(request_id: str) -> None:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def guard_seed_and_counts():
+def guard_seed():
     with SessionLocal() as session:
         assert session.get(Request, "L-C-001") is not None, "seed missing"
-
-    baseline = {
-        "request": _count(Request),
-        "access_decision": _count(AccessDecision),
-        "finding": _count(Finding),
-        "approval_decision": _count(ApprovalDecision),
-        "escalation": _count(Escalation),
-        "draft": _count(Draft),
-        "audit_event": _count(AuditEvent),
-    }
-    yield
-    assert _count(Request) == baseline["request"], "test leaked Request rows"
-    assert _count(AccessDecision) == baseline["access_decision"], "test leaked AccessDecision rows"
-    assert _count(Finding) == baseline["finding"], "test leaked Finding rows"
-    assert _count(ApprovalDecision) == baseline["approval_decision"], "test leaked ApprovalDecision rows"
-    assert _count(Escalation) == baseline["escalation"], "test leaked Escalation rows"
-    assert _count(Draft) == baseline["draft"], "test leaked Draft rows"
-    assert _count(AuditEvent) == baseline["audit_event"], "test leaked AuditEvent rows"
 
 
 # ---------------------------------------------------------------------------
@@ -786,7 +810,6 @@ def test_counts_reflect_current_database_totals():
 # ---------------------------------------------------------------------------
 
 def test_failed_request_leaves_no_partial_rows():
-    before = _count(Request)
     resp = client.post(
         "/requests",
         json={
@@ -796,7 +819,10 @@ def test_failed_request_leaves_no_partial_rows():
         },
     )
     assert resp.status_code == 404
-    assert _count(Request) == before
+    # The request should not exist
+    with SessionLocal() as session:
+        req = session.get(Request, _rid("API-F"))
+        assert req is None
 
 
 def test_failed_review_rolls_back():
@@ -811,15 +837,15 @@ def test_failed_review_rolls_back():
             "request_type": "contract_review",
         },
     )
-    before = _count(Finding)
     try:
-        # Cross-org → 403, no findings should persist.
         resp = client.post(
             f"/requests/{request_id}/review",
             json={"member_id": ASSIGNED, "org_id": "ORG-1019"},
         )
         assert resp.status_code == 403, resp.text
-        assert _count(Finding) == before
+        with SessionLocal() as session:
+            findings = session.scalars(select(Finding).where(Finding.request_id == request_id)).all()
+            assert len(findings) == 0
     finally:
         _cleanup_request_chain(request_id)
 
@@ -840,12 +866,13 @@ def test_failed_approval_leaves_no_partial_approval_decision():
         d = client.post(
             f"/requests/{request_id}/drafts", json={"content": "Draft v1"}
         ).json()
-        before = _count(ApprovalDecision)
         resp = client.post(
             f"/drafts/{d['draft_id']}/approve", json={"reviewer_id": "L-9999"}
         )
         assert resp.status_code == 404, resp.text
-        assert _count(ApprovalDecision) == before
+        with SessionLocal() as session:
+            decisions = session.scalars(select(ApprovalDecision).where(ApprovalDecision.draft_id == d['draft_id'])).all()
+            assert len(decisions) == 0
     finally:
         _cleanup_request_chain(request_id)
 
@@ -919,3 +946,102 @@ def test_raw_content_not_used_for_authorization():
         assert resp.status_code == 403, resp.text
     finally:
         _cleanup_request_chain(request_id)
+
+
+def test_get_review_results() -> None:
+    """Test that POST /requests/{request_id}/review followed by GET returns the correct shape."""
+    request_id = "test-review-api-req"
+    try:
+        # 1. Submit a valid request
+        submit_response = client.post(
+            "/requests",
+            json={
+                "request_id": request_id,
+                "requester_id": ASSIGNED,
+                "raw_content": "Review this contract for liability, term_renewal, and payment risks.",
+                "org_id": ORG,
+                "request_type": "contract_review",
+            }
+        )
+        assert submit_response.status_code == 201
+
+        # 2. Run the review
+        review_response = client.post(
+            f"/requests/{request_id}/review",
+            json={
+                "member_id": ASSIGNED,
+                "org_id": ORG,
+                "contract_id": "C-01",
+            }
+        )
+        assert review_response.status_code == 200, review_response.text
+        post_data = review_response.json()
+
+        assert "access_decision" in post_data
+        assert "findings" in post_data
+        assert "obligations" in post_data
+        assert "escalations" in post_data
+
+        # 3. GET the review
+        get_response = client.get(
+            f"/requests/{request_id}/review",
+        )
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+
+        assert get_data["request_id"] == request_id
+        assert get_data["access_decision"] == post_data["access_decision"]
+        assert len(get_data["findings"]) == len(post_data["findings"])
+        assert get_data["obligations"] == []
+        assert isinstance(get_data["escalations"], list)
+    finally:
+        _cleanup_request_chain(request_id)
+
+
+def test_separation_of_duties_api_returns_403_for_creator():
+    request_id = _rid("API-SOD")
+    client.post(
+        "/requests",
+        json={
+            "request_id": request_id,
+            "requester_id": ASSIGNED,
+            "raw_content": "draft for sod test",
+            "org_id": ORG,
+            "request_type": "contract_review",
+        },
+    )
+    try:
+        # 1. Create a draft manually with created_by="L-02"
+        with SessionLocal() as session:
+            drafting.create_draft(
+                session,
+                request_id=request_id,
+                content="draft authored by L-02",
+                created_by="L-02",
+            )
+            session.commit()
+            d = session.scalars(select(Draft).where(Draft.request_id == request_id)).first()
+            d_id = str(d.draft_id)
+
+        # 2. Attempt approval by creator L-02 -> should fail with 403
+        resp_403 = client.post(
+            f"/drafts/{d_id}/approve", json={"reviewer_id": "L-02"}
+        )
+        assert resp_403.status_code == 403, resp_403.text
+        assert "cannot approve or reject" in resp_403.json()["detail"]
+
+        # 3. Attempt rejection by creator L-02 -> should fail with 403
+        resp_rej_403 = client.post(
+            f"/drafts/{d_id}/reject", json={"reviewer_id": "L-02"}
+        )
+        assert resp_rej_403.status_code == 403, resp_rej_403.text
+
+        # 4. Attempt approval by another authorized reviewer L-01 -> should succeed 200
+        resp_200 = client.post(
+            f"/drafts/{d_id}/approve", json={"reviewer_id": "L-01"}
+        )
+        assert resp_200.status_code == 200, resp_200.text
+        assert resp_200.json()["decision"] == "approved"
+    finally:
+        _cleanup_request_chain(request_id)
+

@@ -3,17 +3,20 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Boolean, ForeignKey, Index, Text, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
 if TYPE_CHECKING:
+    from app.models.analysis_run import AnalysisRun
     from app.models.citation import Citation
     from app.models.request import Request
+    from app.models.team_member import TeamMember
 
 
 class Finding(Base):
@@ -49,17 +52,48 @@ class Finding(Base):
         server_default=text("false"),
     )
     tricky_case_type: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # The analysis run that produced this finding. Nullable only for legacy
+    # findings created before AnalysisRun existed; new findings always carry it.
+    analysis_run_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("analysis_run.analysis_run_id"),
+        nullable=True,
+    )
+
+    # Human review fields (FR-finding-review)
+    status: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default="open",
+        server_default=text("'open'"),
+    )
+    reviewed_by: Mapped[Optional[str]] = mapped_column(
+        Text,
+        ForeignKey("team_member.member_id"),
+        nullable=True,
+    )
+    reviewed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    reviewer_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relationships (as documented in docs/data-schema.md §4)
     request: Mapped[Request] = relationship(
         "Request", back_populates="findings"
     )
+    analysis_run: Mapped[Optional["AnalysisRun"]] = relationship(
+        "AnalysisRun", back_populates="findings"
+    )
     citations: Mapped[list[Citation]] = relationship(
         "Citation", back_populates="finding"
+    )
+    reviewer: Mapped[Optional["TeamMember"]] = relationship(
+        "TeamMember", foreign_keys=[reviewed_by]
     )
 
     def __repr__(self) -> str:
         return (
             f"<Finding finding_id={self.finding_id!r} "
-            f"grounded={self.grounded!r}>"
+            f"grounded={self.grounded!r} status={self.status!r}>"
         )

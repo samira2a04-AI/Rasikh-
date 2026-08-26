@@ -19,6 +19,7 @@ export default defineConfig({
       "/approvals": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/history": { target: "http://127.0.0.1:8000", changeOrigin: true },
       "/health": { target: "http://127.0.0.1:8000", changeOrigin: true },
+      "/organisations": { target: "http://127.0.0.1:8000", changeOrigin: true },
     },
   },
 });

@@ -11,6 +11,7 @@ from app.api.routers import (
     drafts_router,
     history_router,
     obligations_router,
+    organisations_router,
     requests_router,
     review_router,
 )
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 
 app.include_router(requests_router)
+app.include_router(organisations_router)
 app.include_router(audit_router)
 app.include_router(auth_router)
 app.include_router(review_router)

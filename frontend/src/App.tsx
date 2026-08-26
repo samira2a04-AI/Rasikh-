@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
 import { RequestDetailPage } from "./pages/RequestDetailPage";
+import { ContractReviewPage } from "./pages/ContractReviewPage";
 import { RoutePlaceholder } from "./pages/RoutePlaceholder";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -49,6 +50,10 @@ export default function App() {
         <Route
           path="/requests/:requestId"
           element={<RequestDetailPage />}
+        />
+        <Route
+          path="/requests/:requestId/review"
+          element={<ContractReviewPage />}
         />
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/drafts" element={<DraftsPage />} />

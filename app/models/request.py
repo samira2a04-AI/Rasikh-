@@ -12,6 +12,7 @@ from app.database.base import Base
 
 if TYPE_CHECKING:
     from app.models.access_decision import AccessDecision
+    from app.models.analysis_run import AnalysisRun
     from app.models.audit_event import AuditEvent
     from app.models.draft import Draft
     from app.models.escalation import Escalation
@@ -70,6 +71,9 @@ class Request(Base):
     )
     findings: Mapped[list[Finding]] = relationship(
         "Finding", back_populates="request"
+    )
+    analysis_runs: Mapped[list["AnalysisRun"]] = relationship(
+        "AnalysisRun", back_populates="request"
     )
     drafts: Mapped[list[Draft]] = relationship(
         "Draft", back_populates="request"

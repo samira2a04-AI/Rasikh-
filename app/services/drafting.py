@@ -89,6 +89,7 @@ def create_draft(
     request_id: str,
     content: str,
     created_at: datetime | None = None,
+    created_by: str | None = None,
 ) -> Draft:
     """Persist a caller-produced draft as the request's next version.
 
@@ -101,6 +102,9 @@ def create_draft(
     - ``created_at``/``updated_at`` default to the columns' server-side
       ``now()``; callers may pass an explicit timezone-aware datetime for
       deterministic seeding.
+    - ``created_by`` records the authoring member (SEP-006 / APR-006) so the
+      creator cannot later approve their own draft. Nullable only for legacy
+      seed data.
 
     The rows are added to ``session`` but NOT committed — the caller owns the
     transaction, so a failure rolls back draft and audit event together.
@@ -118,6 +122,7 @@ def create_draft(
         approval_state=STATUS_AWAITING_APPROVAL,
         created_at=created_at,
         updated_at=created_at,
+        created_by=created_by,
     )
     session.add(draft)
     session.flush()  # assign the PK for the audit reference

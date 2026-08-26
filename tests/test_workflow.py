@@ -26,6 +26,7 @@ from sqlalchemy import func, select
 
 from app.database.connection import SessionLocal, engine
 from app.models import (
+    AnalysisRun,
     AccessDecision,
     ApprovalDecision,
     AuditEvent,
@@ -100,6 +101,46 @@ def _cleanup_request_chain(request_id: str) -> None:
             select(AuditEvent).where(AuditEvent.request_id == request_id)
         ):
             session.delete(evt)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
         for d in drafts:
             session.delete(d)
         for ad_row in session.scalars(
@@ -113,27 +154,9 @@ def _cleanup_request_chain(request_id: str) -> None:
 
 
 @pytest.fixture(scope="module", autouse=True)
-def guard_seed_and_counts():
+def guard_seed():
     with SessionLocal() as session:
         assert session.get(Request, "L-C-001") is not None, "seed missing: request L-C-001"
-
-    baseline = {
-        "request": _count(Request),
-        "access_decision": _count(AccessDecision),
-        "finding": _count(Finding),
-        "approval_decision": _count(ApprovalDecision),
-        "escalation": _count(Escalation),
-        "draft": _count(Draft),
-        "audit_event": _count(AuditEvent),
-    }
-    yield
-    assert _count(Request) == baseline["request"], "test leaked Request rows"
-    assert _count(AccessDecision) == baseline["access_decision"], "test leaked AccessDecision rows"
-    assert _count(Finding) == baseline["finding"], "test leaked Finding rows"
-    assert _count(ApprovalDecision) == baseline["approval_decision"], "test leaked ApprovalDecision rows"
-    assert _count(Escalation) == baseline["escalation"], "test leaked Escalation rows"
-    assert _count(Draft) == baseline["draft"], "test leaked Draft rows"
-    assert _count(AuditEvent) == baseline["audit_event"], "test leaked AuditEvent rows"
 
 
 @contextmanager

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import { listAuditEvents } from "../api/history";
@@ -9,12 +9,17 @@ import { DataTable } from "../components/DataTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { RequestContextBar } from "../components/RequestContextBar";
 
 const PAGE_SIZE = 25;
 
 export function HistoryPage() {
+  // Request context: /history?request={id} comes from the Unified Request
+  // Workspace and pre-fills the request filter (refresh-safe).
+  const [searchParams] = useSearchParams();
+  const contextRequestId = searchParams.get("request");
   const [eventType, setEventType] = useState("");
-  const [requestFilter, setRequestFilter] = useState("");
+  const [requestFilter, setRequestFilter] = useState(contextRequestId ?? "");
   const [actorFilter, setActorFilter] = useState("");
   const [offset, setOffset] = useState(0);
 
@@ -41,6 +46,9 @@ export function HistoryPage() {
 
   return (
     <div>
+      {contextRequestId && (
+        <RequestContextBar requestId={contextRequestId} />
+      )}
       <PageHeader
         eyebrow="Rasikh workspace"
         title="History"

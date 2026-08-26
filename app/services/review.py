@@ -33,6 +33,8 @@ back atomically — no partial Finding can survive.
 
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -45,6 +47,7 @@ from app.models import (
 )
 
 EVENT_FINDING_PRODUCED = "finding_produced"
+EVENT_FINDING_REVIEWED = "finding_reviewed"
 
 # Checklist areas defined by docs/data-schema.md §3 (finding.checklist_area /
 # contract_clause.checklist_area). No other values exist in the specification.
@@ -155,6 +158,7 @@ def create_grounded_finding(
     risk_rating: str | None = None,
     sharia_sensitive_flag: bool = False,
     tricky_case_type: str | None = None,
+    analysis_run_id=None,
 ) -> Finding:
     """Create a grounded Finding with >= 1 Citation to supplied source clauses.
 
@@ -182,6 +186,8 @@ def create_grounded_finding(
         risk_rating=risk_rating,
         sharia_sensitive_flag=sharia_sensitive_flag,
         tricky_case_type=tricky_case_type,
+        analysis_run_id=analysis_run_id,
+        status="open",
     )
     session.add(finding)
     session.flush()  # assign the PK so citations can reference it
@@ -204,6 +210,7 @@ def create_ungrounded_finding(
     request_id: str,
     statement: str,
     checklist_area: str | None = None,
+    analysis_run_id=None,
 ) -> Finding:
     """Create an explicit "not in the documents" Finding with ZERO citations.
 
@@ -227,6 +234,8 @@ def create_ungrounded_finding(
         risk_rating=None,
         sharia_sensitive_flag=False,
         tricky_case_type=None,
+        analysis_run_id=analysis_run_id,
+        status="open",
     )
     session.add(finding)
     session.flush()  # assign the PK for the audit reference
@@ -237,6 +246,63 @@ def create_ungrounded_finding(
         finding_id=finding.finding_id,
         grounded=False,
         citation_count=0,
+    )
+    session.flush()
+    return finding
+
+
+def review_finding(
+    session: Session,
+    *,
+    request_id: str,
+    finding_id: str | uuid.UUID,
+    reviewer_id: str,
+    status: str = "reviewed",
+    reviewer_notes: str | None = None,
+) -> Finding:
+    """Record a human review on a finding and log an audit event."""
+    _require_request(session, request_id)
+
+    if isinstance(finding_id, str):
+        try:
+            finding_uuid = uuid.UUID(finding_id)
+        except ValueError:
+            raise ReviewPersistenceError(f"invalid finding_id format {finding_id!r}")
+    else:
+        finding_uuid = finding_id
+
+    finding = session.get(Finding, finding_uuid)
+    if finding is None or finding.request_id != request_id:
+        raise ReviewPersistenceError(f"finding {finding_id!r} not found for request {request_id!r}")
+
+    # Idempotency check: if status, reviewer, and notes are unchanged, avoid duplicate audit events
+    if (
+        finding.status == status
+        and finding.reviewed_by == reviewer_id
+        and finding.reviewer_notes == reviewer_notes
+    ):
+        return finding
+
+    now = datetime.now(timezone.utc)
+    finding.status = status
+    finding.reviewed_by = reviewer_id
+    finding.reviewed_at = now
+    if reviewer_notes is not None:
+        finding.reviewer_notes = reviewer_notes
+
+    session.add(
+        AuditEvent(
+            request_id=request_id,
+            event_type=EVENT_FINDING_REVIEWED,
+            actor_id=reviewer_id,
+            detail_reference=f"finding:{finding.finding_id}",
+            detail_json={
+                "status": status,
+                "reviewed_by": reviewer_id,
+                "reviewed_at": now.isoformat(),
+                "reviewer_notes": reviewer_notes,
+            },
+        )
     )
     session.flush()
     return finding

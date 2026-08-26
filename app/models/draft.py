@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import (
     CheckConstraint,
@@ -23,6 +23,7 @@ from app.database.base import Base
 if TYPE_CHECKING:
     from app.models.approval_decision import ApprovalDecision
     from app.models.request import Request
+    from app.models.team_member import TeamMember
 
 
 class Draft(Base):
@@ -64,6 +65,14 @@ class Draft(Base):
         nullable=False,
         server_default=func.now(),
     )
+    # Separation of duties (APR-006): the member who created this draft may not
+    # also decide it. Nullable so legacy drafts without a recorded author remain
+    # valid. New drafts are always attributed.
+    created_by: Mapped[Optional[str]] = mapped_column(
+        Text,
+        ForeignKey("team_member.member_id"),
+        nullable=True,
+    )
 
     # Relationships (as documented in docs/data-schema.md §4)
     request: Mapped[Request] = relationship(
@@ -71,6 +80,10 @@ class Draft(Base):
     )
     approval_decisions: Mapped[list[ApprovalDecision]] = relationship(
         "ApprovalDecision", back_populates="draft"
+    )
+    creator: Mapped[Optional["TeamMember"]] = relationship(
+        "TeamMember",
+        backref="drafts",
     )
 
     def __repr__(self) -> str:

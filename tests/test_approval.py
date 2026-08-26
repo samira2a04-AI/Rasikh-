@@ -407,15 +407,19 @@ def test_failed_rejection_leaves_nothing():
 
 
 def test_rollback_removes_all_approval_writes():
+    before_d = _draft_count()
+    before_a = _approval_count()
+    before_e = _audit_count("approved", "rejected")
+    
     with SessionLocal() as session:
         d = create_draft(session, request_id=SEED_REQUEST_ID, content="rollback check")
         d_id = d.draft_id
         approve_draft(session, draft_id=d_id, reviewer_id=APPROVER_REVIEWER)
         session.rollback()
 
-    assert _draft_count() == 0
-    assert _approval_count() == 0
-    assert _audit_count("approved", "rejected") == 0
+    assert _draft_count() == before_d
+    assert _approval_count() == before_a
+    assert _audit_count("approved", "rejected") == before_e
     with SessionLocal() as verify:
         assert verify.get(Draft, d_id) is None
 
@@ -458,3 +462,55 @@ def test_approval_queries_no_forbidden_tables_or_raw_content():
         assert any(p in s for s in statements for p in permitted)
     finally:
         _cleanup_draft_chain(SEED_REQUEST_ID)
+
+
+# ---------------------------------------------------------------------------
+# Separation of duties (APR-006)
+# ---------------------------------------------------------------------------
+
+def test_separation_of_duties_creator_cannot_approve_own_draft():
+    with SessionLocal() as session:
+        d = create_draft(session, request_id=SEED_REQUEST_ID, content="sod check", created_by="L-02")
+        d_id = d.draft_id
+        session.commit()
+
+    try:
+        with SessionLocal() as session:
+            with pytest.raises(ApprovalWorkflowError) as exc_info:
+                approve_draft(session, draft_id=d_id, reviewer_id="L-02")
+            assert "cannot approve or reject" in str(exc_info.value)
+            session.rollback()
+    finally:
+        _cleanup_draft_chain(SEED_REQUEST_ID)
+
+
+def test_separation_of_duties_creator_cannot_reject_own_draft():
+    with SessionLocal() as session:
+        d = create_draft(session, request_id=SEED_REQUEST_ID, content="sod check reject", created_by="L-02")
+        d_id = d.draft_id
+        session.commit()
+
+    try:
+        with SessionLocal() as session:
+            with pytest.raises(ApprovalWorkflowError) as exc_info:
+                reject_draft(session, draft_id=d_id, reviewer_id="L-02")
+            assert "cannot approve or reject" in str(exc_info.value)
+            session.rollback()
+    finally:
+        _cleanup_draft_chain(SEED_REQUEST_ID)
+
+
+def test_separation_of_duties_another_reviewer_can_approve():
+    with SessionLocal() as session:
+        d = create_draft(session, request_id=SEED_REQUEST_ID, content="sod check pass", created_by="L-02")
+        d_id = d.draft_id
+        session.commit()
+
+    try:
+        with SessionLocal() as session:
+            decision = approve_draft(session, draft_id=d_id, reviewer_id="L-01")
+            assert decision.decision == "approved"
+            assert decision.reviewer_id == "L-01"
+            session.commit()
+    finally:
+        _cleanup_draft_chain(SEED_REQUEST_ID)

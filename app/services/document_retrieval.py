@@ -32,6 +32,7 @@ module; it is plain SQLAlchemy against the authorised database session.
 
 from __future__ import annotations
 
+import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -264,3 +265,66 @@ def retrieve_review_standard_clauses(
         detail={"org_id": org_id, "count": len(clauses)},
     )
     return clauses
+
+def retrieve_similar_contract_clauses(
+    session: Session,
+    *,
+    request_id: str,
+    member_id: str,
+    org_id: str,
+    contract_id: str,
+    query_embedding: list[float],
+    limit: int = 5,
+) -> list[ContractClause]:
+    """Return top-K contract clauses by cosine similarity (in-memory)."""
+    clauses = retrieve_contract_clauses(
+        session, request_id=request_id, member_id=member_id, org_id=org_id, contract_id=contract_id
+    )
+    
+    if not clauses:
+        return []
+        
+    query_vec = np.array(query_embedding)
+    
+    def cosine_sim(vec: list[float] | None) -> float:
+        if not vec:
+            return -1.0
+        v = np.array(vec)
+        norm_product = np.linalg.norm(query_vec) * np.linalg.norm(v)
+        if norm_product == 0:
+            return 0.0
+        return float(np.dot(query_vec, v) / norm_product)
+        
+    clauses.sort(key=lambda c: cosine_sim(c.embedding), reverse=True)
+    return clauses[:limit]
+
+def retrieve_similar_review_standard_clauses(
+    session: Session,
+    *,
+    request_id: str,
+    member_id: str,
+    org_id: str,
+    query_embedding: list[float],
+    limit: int = 5,
+) -> list[ReviewStandardClause]:
+    """Return top-K standard clauses by cosine similarity (in-memory)."""
+    clauses = retrieve_review_standard_clauses(
+        session, request_id=request_id, member_id=member_id, org_id=org_id
+    )
+    
+    if not clauses:
+        return []
+        
+    query_vec = np.array(query_embedding)
+    
+    def cosine_sim(vec: list[float] | None) -> float:
+        if not vec:
+            return -1.0
+        v = np.array(vec)
+        norm_product = np.linalg.norm(query_vec) * np.linalg.norm(v)
+        if norm_product == 0:
+            return 0.0
+        return float(np.dot(query_vec, v) / norm_product)
+        
+    clauses.sort(key=lambda c: cosine_sim(c.embedding), reverse=True)
+    return clauses[:limit]

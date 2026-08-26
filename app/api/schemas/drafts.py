@@ -28,3 +28,4 @@ class DraftResponse(BaseModel):
     approval_state: str
     created_at: datetime
     updated_at: datetime
+    created_by: Optional[str] = None

@@ -43,11 +43,14 @@ from typing import Iterable
 
 from sqlalchemy.orm import Session
 
+from app.models import Organisation, AuditEvent, Request
 from app.services import (  # noqa: E402  (import order kept flat for clarity)
     access_control,
+    analysis_run,
     approval,
     document_retrieval,
     drafting,
+    llm,
     obligation_sweep,
     request_intake,
     rulebook_review,
@@ -109,6 +112,7 @@ class ReviewWorkflowResult:
     standard_clauses: tuple = ()
     findings: tuple = ()
     sweep_result: object | None = None
+    analysis_run: object | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +157,124 @@ def intake_and_classify(
     return classified
 
 
+def auto_intake_and_classify(
+    session: Session,
+    *,
+    request_id: str,
+    requester_id: str,
+    raw_content: str,
+    org_id: str | None,
+    created_at=None,
+):
+    """Run Intake -> AI Classification for a request missing explicit types.
+    
+    If the LLM needs clarification or cannot confidently identify the org (when 
+    not explicitly provided), the request is left in 'insufficient' status.
+    """
+    try:
+        request = request_intake.submit_request(
+            session,
+            request_id=request_id,
+            requester_id=requester_id,
+            raw_content=raw_content,
+            org_id=org_id,
+            created_at=created_at,
+        )
+    except Exception as exc:
+        raise WorkflowStageError(STAGE_INTAKE, str(exc)) from exc
+
+    # Fetch available orgs to pass to the LLM
+    try:
+        orgs = session.query(Organisation).filter(Organisation.status == "active").all()
+        available_orgs = {org.org_id: org.name for org in orgs}
+        
+        result = llm.classify_request_via_llm(raw_content, available_orgs)
+        
+        final_org_id = org_id if org_id is not None else result.org_id
+        
+        if result.needs_clarification or (not final_org_id and not result.org_id):
+            # Cannot confidently classify or map org
+            request.status = "insufficient"
+            session.add(
+                AuditEvent(
+                    request_id=request_id,
+                    event_type="classification_failed",
+                    actor_id=None,
+                    detail_reference=f"request:{request_id}",
+                    detail_json={"reason": result.reason, "needs_clarification": result.needs_clarification},
+                )
+            )
+            return request
+
+        # Valid classification
+        if org_id is None and final_org_id:
+            request.org_id = final_org_id
+            
+        classified = request_intake.classify_request(
+            session,
+            request_id=request_id,
+            request_type=result.request_type,
+        )
+        return classified
+    except Exception as exc:
+        raise WorkflowStageError(STAGE_CLASSIFY, str(exc)) from exc
+
+
+def resolve_insufficient_request(
+    session: Session,
+    *,
+    request_id: str,
+    member_id: str,
+    org_id: str,
+    request_type: str,
+):
+    """Manually resolve a request left in 'insufficient' state by AI classification.
+    
+    Checks that the user has access to the org_id they are trying to assign.
+    """
+    # 1. Authorize the user against the org they want to assign
+    access_result = access_control.check_access(session, member_id, org_id)
+    if not access_result.authorized:
+        raise WorkflowAccessDenied(access_result.basis)
+        
+    try:
+        # Check org exists and is active (handled mostly by check_access, but we ensure status here)
+        org = session.get(Organisation, org_id)
+        if not org or org.status != "active":
+            raise request_intake.RequestIntakeError(f"Organisation {org_id} is inactive or does not exist.")
+            
+        request = session.get(Request, request_id)
+        if not request:
+            raise request_intake.RequestIntakeError(f"unknown request_id {request_id}")
+            
+        if request.status not in ("intake", "insufficient"):
+            raise request_intake.RequestIntakeError(f"Request cannot be resolved from status: {request.status}")
+
+        # Update org
+        request.org_id = org_id
+        
+        # We classify it and move status to classified
+        classified = request_intake.classify_request(
+            session,
+            request_id=request_id,
+            request_type=request_type,
+        )
+        
+        # Add a specific audit event for manual resolution
+        session.add(
+            AuditEvent(
+                request_id=request_id,
+                event_type="manual_classification",
+                actor_id=member_id,
+                detail_reference=f"request:{request_id}",
+                detail_json={"org_id": org_id, "request_type": request_type},
+            )
+        )
+        return classified
+    except Exception as exc:
+        raise WorkflowStageError(STAGE_CLASSIFY, str(exc)) from exc
+
+
 # ---------------------------------------------------------------------------
 # Access + retrieval + review (+ optional obligation sweep)
 # ---------------------------------------------------------------------------
@@ -181,6 +303,14 @@ def run_review(
     - When ``reference_date`` is provided, runs the obligation sweep for the
       organisation (documented as following review).
     """
+    # Validate the request exists BEFORE recording the access decision so an
+    # unknown id maps cleanly to 404 and no orphan rows can be created.
+    if session.get(Request, request_id) is None:
+        exc = request_intake.RequestIntakeError(
+            f"unknown request_id {request_id!r}"
+        )
+        raise WorkflowStageError(STAGE_RETRIEVE, str(exc)) from exc
+
     try:
         decision = access_control.record_access_decision(
             session,
@@ -198,6 +328,10 @@ def run_review(
             f"org {org_id!r}) is {decision.outcome!r}; workflow stopped"
         )
 
+    # Phase 1: one AnalysisRun per review execution. Findings created below
+    # belong to this run; the deterministic summary is snapshotted at the end.
+    run = analysis_run.start_run(session, request_id=request_id)
+
     try:
         contracts = tuple(
             document_retrieval.retrieve_contracts(
@@ -208,6 +342,7 @@ def run_review(
             )
         )
     except Exception as exc:
+        analysis_run.fail_run(session, run=run, reason=str(exc))
         raise WorkflowStageError(STAGE_RETRIEVE, str(exc)) from exc
 
     try:
@@ -220,6 +355,7 @@ def run_review(
             )
         )
     except Exception as exc:
+        analysis_run.fail_run(session, run=run, reason=str(exc))
         raise WorkflowStageError(STAGE_RETRIEVE, str(exc)) from exc
 
     clauses: list = []
@@ -249,16 +385,22 @@ def run_review(
         raise WorkflowStageError(STAGE_RETRIEVE, str(exc)) from exc
 
     try:
-        findings = tuple(
-            rulebook_review.review_contract(
-                session,
-                request_id=request_id,
-                contract_clauses=clauses,
-                standard_clauses=list(standard_clauses),
-            )
+        findings, engine = rulebook_review.review_contract(
+            session,
+            request_id=request_id,
+            contract_clauses=clauses,
+            standard_clauses=list(standard_clauses),
+            analysis_run_id=run.analysis_run_id,
         )
     except Exception as exc:
+        analysis_run.fail_run(session, run=run, reason=str(exc))
         raise WorkflowStageError(STAGE_REVIEW, str(exc)) from exc
+
+    # Deterministic result snapshot: mark the run completed with a factual
+    # summary of its own findings before any downstream stage can fail.
+    analysis_run.complete_run(
+        session, run=run, findings=tuple(findings), engine=engine
+    )
 
     sweep_result = None
     if reference_date is not None:
@@ -278,8 +420,9 @@ def run_review(
         contracts=contracts,
         clauses=tuple(clauses),
         standard_clauses=standard_clauses,
-        findings=findings,
+        findings=tuple(findings),
         sweep_result=sweep_result,
+        analysis_run=run,
     )
 
 
@@ -316,6 +459,7 @@ def prepare_draft(
     request_id: str,
     content: str,
     created_at=None,
+    created_by: str | None = None,
 ):
     """Delegate to :func:`drafting.create_draft` (thin wrapper)."""
     try:
@@ -324,6 +468,7 @@ def prepare_draft(
             request_id=request_id,
             content=content,
             created_at=created_at,
+            created_by=created_by,
         )
     except Exception as exc:
         raise WorkflowStageError(STAGE_DRAFT, str(exc)) from exc

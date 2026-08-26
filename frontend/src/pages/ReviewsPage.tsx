@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { me } from "../api/auth";
 import { ApiError } from "../api/client";
 import { listRequests } from "../api/requests";
-import { runReview } from "../api/reviews";
-import type { RequestResponse, ReviewResponse } from "../api/types";
+import { getReview, runReview } from "../api/reviews";
+import type { RequestResponse } from "../api/types";
 import { Card } from "../components/Card";
 import { DataTable } from "../components/DataTable";
 import { EmptyState } from "../components/EmptyState";
@@ -14,11 +14,79 @@ import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { StatusIndicator } from "../components/StatusIndicator";
-import { ReviewResults } from "../features/reviews/ReviewResults";
+
+/**
+ * Per-row action cell. Checks whether a persisted review exists and renders
+ * either "View Review" (navigates to the dedicated review page) or
+ * "Run Review" (POSTs, then navigates only on success).
+ */
+function ReviewActionCell({
+  request,
+  memberId,
+  runMutation,
+}: {
+  request: RequestResponse;
+  memberId: string | null;
+  runMutation: ReturnType<
+    typeof useMutation<{ request: RequestResponse }, Error, unknown>
+  >;
+}) {
+  const navigate = useNavigate();
+  const existingQuery = useQuery({
+    queryKey: ["review", request.request_id],
+    queryFn: () => getReview(request.request_id),
+    enabled: Boolean(memberId && request.org_id),
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  if (!memberId) {
+    return <span className="auth-subtitle">No linked member</span>;
+  }
+  if (request.status === "intake" || request.status === "insufficient") {
+    return <span className="auth-subtitle">Needs clarification</span>;
+  }
+  if (!request.org_id) {
+    return <span className="auth-subtitle">Missing organisation</span>;
+  }
+
+  if (existingQuery.data) {
+    return (
+      <Link
+        className="button button--secondary"
+        to={`/requests/${encodeURIComponent(request.request_id)}/review`}
+      >
+        View Review
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="button"
+      disabled={runMutation.isPending}
+      onClick={(e) => {
+        e.preventDefault();
+        if (runMutation.isPending) return;
+        runMutation.mutate(
+          { request },
+          {
+            onSuccess: () =>
+              navigate(
+                `/requests/${encodeURIComponent(request.request_id)}/review`,
+              ),
+          },
+        );
+      }}
+    >
+      {runMutation.isPending ? "Analyzing contract…" : "Run Review"}
+    </button>
+  );
+}
 
 export function ReviewsPage() {
   const queryClient = useQueryClient();
-  const [activeReview, setActiveReview] = useState<ReviewResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: me });
@@ -30,16 +98,18 @@ export function ReviewsPage() {
   const memberId = meQuery.data?.member_id ?? null;
 
   const runMutation = useMutation({
-    mutationFn: (args: { request: RequestResponse }) =>
+    mutationFn: async (args: { request: RequestResponse }) =>
       runReview(args.request.request_id, {
         member_id: memberId ?? "",
         org_id: args.request.org_id ?? "",
       }),
     onSuccess: (data) => {
-      setActiveReview(data);
       setErrorMessage(null);
       void queryClient.invalidateQueries({
         queryKey: ["request-history", data.request_id],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["review", data.request_id],
       });
     },
     onError: (err) => {
@@ -63,12 +133,6 @@ export function ReviewsPage() {
     },
   });
 
-  function handleReview(request: RequestResponse) {
-    if (!memberId || !request.org_id) return;
-    setErrorMessage(null);
-    runMutation.mutate({ request });
-  }
-
   if (requestsQuery.isPending || meQuery.isPending) {
     return <LoadingState message="Loading reviews…" />;
   }
@@ -85,18 +149,22 @@ export function ReviewsPage() {
     );
   }
 
-  const reviewable = requestsQuery.data.filter((r) => r.org_id);
+  const reviewable = requestsQuery.data;
 
   return (
     <div>
       <PageHeader
         eyebrow="Rasikh workspace"
         title="Reviews"
-        description="Run and inspect contract reviews for submitted matters. Each review is tied to a request and its organisation."
+        description="Run and inspect contract reviews for submitted matters. Each review opens in its dedicated contract review workspace."
       />
 
       {errorMessage && (
         <p className="auth-error" role="alert">{errorMessage}</p>
+      )}
+
+      {runMutation.isPending && (
+        <p className="auth-subtitle">Analyzing contract…</p>
       )}
 
       {reviewable.length === 0 ? (
@@ -138,39 +206,17 @@ export function ReviewsPage() {
               },
               {
                 label: "Action",
-                value: (r) =>
-                  memberId ? (
-                    <button
-                      type="button"
-                      className="button"
-                      disabled={runMutation.isPending}
-                      onClick={() => handleReview(r)}
-                    >
-                      {runMutation.isPending ? "Reviewing…" : "Run review"}
-                    </button>
-                  ) : (
-                    <span className="auth-subtitle">No linked member</span>
-                  ),
+                value: (r) => (
+                  <ReviewActionCell
+                    request={r}
+                    memberId={memberId}
+                    runMutation={runMutation as any}
+                  />
+                ),
               },
             ]}
             items={reviewable}
           />
-        </Card>
-      )}
-
-      <p className="auth-subtitle" style={{ marginTop: "12px" }}>
-        Open any matter from the table to see its request details and audit history.
-      </p>
-
-      {runMutation.isPending && <p className="auth-subtitle">Running review…</p>}
-
-      {activeReview && (
-        <Card className="mt-md">
-          <p className="eyebrow">Review result</p>
-          <h2 style={{ marginTop: "4px", fontSize: "20px" }}>
-            {activeReview.request_id}
-          </h2>
-          <ReviewResults review={activeReview} />
         </Card>
       )}
     </div>

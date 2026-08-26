@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { me } from "../api/auth";
@@ -10,9 +11,15 @@ import { DataTable } from "../components/DataTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { RequestContextBar } from "../components/RequestContextBar";
 import { StatusIndicator } from "../components/StatusIndicator";
 
 export function ObligationsPage() {
+  // Request context: /obligations?request={id} comes from the Unified Request
+  // Workspace. Obligations remain organisation-scoped — the context bar only
+  // preserves navigation back to the request.
+  const [searchParams] = useSearchParams();
+  const contextRequestId = searchParams.get("request");
   const meQuery = useQuery({ queryKey: ["me"], queryFn: me });
   const role = meQuery.data?.role ?? null;
 

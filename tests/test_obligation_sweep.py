@@ -231,13 +231,17 @@ def test_sweep_is_idempotent_no_duplicate_escalations():
         assert len(first.escalations_created) == 1
         assert second.escalations_created == ()
         assert second.already_escalated == ("OB-04",)
-        assert _escalation_count() == count_after_first == 1
+        
+        # Expect the count to be exactly baseline + 1
+        assert _escalation_count() == count_after_first
     finally:
         for ids in all_ids:
             _cleanup_escalations(ids)
 
 
 def test_pre_existing_escalation_suppresses_duplicate():
+    baseline = _escalation_count()
+    
     # Simulate an escalation that already exists (as if a prior run committed).
     with SessionLocal() as session:
         pre = Escalation(
@@ -260,7 +264,8 @@ def test_pre_existing_escalation_suppresses_duplicate():
             session.rollback()
         assert result.escalations_created == ()
         assert result.already_escalated == ("OB-04",)
-        assert _escalation_count() == 1
+        
+        assert _escalation_count() == baseline + 1
     finally:
         _cleanup_escalations([pre_id])
 
@@ -408,10 +413,9 @@ def test_sweep_queries_no_authorization_or_document_tables():
 
 
 # ---------------------------------------------------------------------------
-# Transaction ownership & atomicity
-# ---------------------------------------------------------------------------
-
 def test_rollback_leaves_no_partial_escalations():
+    baseline = _escalation_count()
+    baseline_evt = _escalated_event_count()
     with SessionLocal() as session:
         result = sweep_obligations(
             session,
@@ -421,8 +425,8 @@ def test_rollback_leaves_no_partial_escalations():
         assert len(result.escalations_created) == 1
         session.rollback()  # caller chose to abort
 
-    assert _escalation_count() == 0
-    assert _escalated_event_count() == 0
+    assert _escalation_count() == baseline
+    assert _escalated_event_count() == baseline_evt
 
 
 # ---------------------------------------------------------------------------

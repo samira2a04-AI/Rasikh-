@@ -7,6 +7,7 @@ from app.api.routers.drafts import router as drafts_router
 from app.api.routers.history import audit_router as audit_router
 from app.api.routers.history import router as history_router
 from app.api.routers.obligations import router as obligations_router
+from app.api.routers.organisations import router as organisations_router
 from app.api.routers.requests import router as requests_router
 from app.api.routers.review import router as review_router
 
@@ -18,6 +19,7 @@ __all__ = [
     "drafts_router",
     "history_router",
     "obligations_router",
+    "organisations_router",
     "requests_router",
     "review_router",
 ]

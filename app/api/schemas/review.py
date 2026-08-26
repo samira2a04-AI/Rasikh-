@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -43,6 +43,18 @@ class FindingResponse(BaseModel):
     sharia_sensitive_flag: bool
     tricky_case_type: Optional[str] = None
     citations: list[CitationResponse] = []
+    status: str = "open"
+    reviewed_by: Optional[str] = None
+    reviewed_by_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    reviewer_notes: Optional[str] = None
+
+
+class FindingReviewRequest(BaseModel):
+    """Request to update a finding's human-review status."""
+
+    status: str = "reviewed"
+    reviewer_notes: Optional[str] = None
 
 
 class EscalationResponse(BaseModel):

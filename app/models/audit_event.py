@@ -6,8 +6,8 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Index, Text, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import DateTime, ForeignKey, Index, Text, func, JSON
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -48,7 +48,7 @@ class AuditEvent(Base):
         nullable=True,
     )
     detail_reference: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    detail_json: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    detail_json: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

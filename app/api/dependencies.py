@@ -41,8 +41,14 @@ def _cause(exc: Exception) -> Exception:
 
 def _http_for_intake(msg: str) -> int:
     # "unsupported request_type ..." -> 400 (validation)
+    # "inactive or does not exist" -> 400
+    # "Request cannot be resolved from status" -> 400
     # "unknown requester_id / unknown org_id / unknown request_id ..." -> 404
     if "unsupported request_type" in msg:
+        return 400
+    if "inactive or does not exist" in msg:
+        return 400
+    if "Request cannot be resolved from status" in msg:
         return 400
     return 404
 
@@ -54,6 +60,8 @@ def _http_for_approval(msg: str) -> int:
     if "unknown reviewer_id" in msg:
         return 404
     if "does not have approval authority" in msg:
+        return 403
+    if "cannot approve or reject" in msg:
         return 403
     # stale version, terminal state, or "already carries an ApprovalDecision"
     return 409
