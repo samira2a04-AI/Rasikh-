@@ -87,6 +87,7 @@ class ReviewResponse(BaseModel):
 
     request_id: str
     access_decision: str
+    engine: Optional[str] = None
     findings: list[FindingResponse]
     obligations: list[ObligationResponse]
     escalations: list[EscalationResponse]

@@ -29,8 +29,24 @@ _STOPWORDS = frozenset(
 )
 
 
+_STANDARD_TOPIC_KEYWORDS = {
+    "1.1": {"term", "renewal", "duration", "expiry", "expire", "commence", "effective", "auto-renew", "period"},
+    "1.2": {"liability", "indemnify", "indemnity", "indemnification", "limitation", "cap", "loss", "damage", "carve-out"},
+    "1.3": {"payment", "pay", "fee", "price", "invoice", "currency", "amount", "due", "schedule", "billing", "usd", "sar"},
+    "1.4": {"terminate", "termination", "cancel", "cancellation", "breach", "notice", "convenience"},
+    "1.5": {"governing", "law", "jurisdiction", "dispute", "court", "governed", "arbitration", "saudi", "english", "rules"},
+    "1.6": {"confidential", "confidentiality", "disclosure", "nondisclosure", "privacy", "secret", "proprietary", "data"},
+    "1.7": {"missing", "essential", "gap", "omitted"},
+    "1.8": {"absent", "lacking", "omission"},
+    "4.1": {"interest", "per annum", "usury", "riba", "finance charge"},
+    "4.2": {"uncertainty", "speculation", "undefined", "gharar"},
+    "4.3": {"penalty", "liquidated", "damages", "late fee", "fine", "sanction", "late payment"},
+    "4.4": {"flag", "stop"},
+}
+
+
 def _content_words(text: str) -> set[str]:
-    return {w for w in text.lower().split() if len(w) > 2 and w not in _STOPWORDS}
+    return {w.strip(".,;:()[]\"'").lower() for w in text.split() if len(w) > 2 and w.lower() not in _STOPWORDS}
 
 
 def _deterministic_findings(
@@ -40,21 +56,32 @@ def _deterministic_findings(
     """Deterministic clause-vs-standard review used when the LLM is
     unavailable (quota exhausted, network error, etc.).
 
-    Each standard clause is compared against the contract clauses via
-    keyword overlap; matches become grounded findings citing the real
+    Each applicable contract-review standard clause is compared against the contract
+    clauses via topic-focused keyword overlap; matches become grounded findings citing the real
     clause ORM ids, non-matches become explicit 'not addressed' findings.
     """
+    applicable = [
+        sc for sc in standard_clauses
+        if sc.clause_number in ("1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "4.1", "4.2", "4.3")
+    ]
+    if not applicable:
+        applicable = [
+            sc for sc in standard_clauses
+            if sc.clause_number.startswith("1.") or sc.clause_number.startswith("4.")
+        ]
+
     findings: list[LLMFinding] = []
-    for sc in standard_clauses:
-        sc_words = _content_words(sc.text)
+    for sc in applicable:
+        is_sharia = sc.clause_number.startswith("4.") or sc.category == "sharia_sensitive"
+        topic_words = _STANDARD_TOPIC_KEYWORDS.get(sc.clause_number, _content_words(sc.text))
         best_clause = None
         best_overlap = 0
         for cc in contract_clauses:
-            overlap = len(sc_words & _content_words(cc.text))
+            overlap = len(topic_words & _content_words(cc.text))
             if overlap > best_overlap:
                 best_overlap = overlap
                 best_clause = cc
-        if best_clause is not None and best_overlap >= 2:
+        if best_clause is not None and best_overlap >= 1:
             findings.append(
                 LLMFinding(
                     statement=(
@@ -62,8 +89,8 @@ def _deterministic_findings(
                         f"addressed by contract clause '{best_clause.clause_label}' "
                         f"(matched {best_overlap} key terms)."
                     ),
-                    risk_rating="Low risk",
-                    sharia_sensitive_flag=False,
+                    risk_rating="High risk" if (is_sharia or "unlimited" in best_clause.text.lower()) else "Low risk",
+                    sharia_sensitive_flag=is_sharia,
                     cited_contract_clause_ids=[str(best_clause.clause_id)],
                     cited_standard_clause_ids=[str(sc.standard_clause_id)],
                 )
@@ -76,7 +103,7 @@ def _deterministic_findings(
                         "(not addressed in the documents)"
                     ),
                     risk_rating=None,
-                    sharia_sensitive_flag=False,
+                    sharia_sensitive_flag=is_sharia,
                     cited_contract_clause_ids=[],
                     cited_standard_clause_ids=[],
                 )
@@ -100,19 +127,31 @@ def review_contract(
     engine = "llm"
 
     if not contract_clauses:
-        # If there are no contract clauses, none of the standard clauses are addressed.
+        # If there are no contract clauses (document-less request or matter without linked contracts),
+        # return a single grounded 'not in the documents' finding instead of falsely claiming
+        # operational rulebook clauses are missing.
         engine = "deterministic_fallback"
-        created_findings = []
-        for sc in standard_clauses:
-            statement = f"Clause {sc.clause_number}: {sc.text} (not addressed in the documents)"
-            finding = create_ungrounded_finding(
-                session=session,
-                request_id=request_id,
-                statement=statement,
-                analysis_run_id=analysis_run_id,
-            )
-            created_findings.append(finding)
-        return created_findings, engine
+        statement = "No source documents or contracts are linked to this organisation (not addressed in the documents)"
+        finding = create_ungrounded_finding(
+            session=session,
+            request_id=request_id,
+            statement=statement,
+            analysis_run_id=analysis_run_id,
+        )
+        return [finding], engine
+
+    # Filter standard_clauses to substantive contract-review standards
+    # (Section 1: Contract Review Checklist & Section 4: Sharia-Sensitive Constructs).
+    # System operating principles (Sections 0, 3, 5, 6: access control, privilege,
+    # escalation, obligation calendar) are NOT contract clauses to evaluate as missing.
+    applicable_standards = [
+        sc for sc in standard_clauses
+        if sc.clause_number.startswith("1.")
+        or sc.clause_number.startswith("4.")
+        or sc.category in ("review_checklist", "sharia_sensitive")
+    ]
+    if not applicable_standards:
+        applicable_standards = list(standard_clauses)
         
     contract_text = "\n".join(
         f"[Clause ID: {c.clause_id}] (Label: {c.clause_label}) {c.text}"
@@ -121,7 +160,7 @@ def review_contract(
     
     standard_text = "\n".join(
         f"[Standard Clause ID: {c.standard_clause_id}] (Number: {c.clause_number}) {c.text}"
-        for c in standard_clauses
+        for c in applicable_standards
     )
     
     try:
@@ -132,12 +171,12 @@ def review_contract(
         # instead of failing the whole request with a 500. The engine is
         # recorded so this output is distinguishable from Gemini output.
         logger.warning("LLM evaluation failed; using deterministic fallback: %s", exc)
-        llm_findings = _deterministic_findings(contract_clauses, standard_clauses)
+        llm_findings = _deterministic_findings(contract_clauses, applicable_standards)
         engine = "deterministic_fallback"
     
     # Map back to ORM objects for grounded findings
     contract_clause_map = {str(c.clause_id): c for c in contract_clauses}
-    standard_clause_map = {str(c.standard_clause_id): c for c in standard_clauses}
+    standard_clause_map = {str(c.standard_clause_id): c for c in applicable_standards}
     
     created_findings = []
     

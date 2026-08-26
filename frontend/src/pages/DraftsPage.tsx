@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "../api/client";
@@ -17,16 +17,30 @@ import { StatusIndicator } from "../components/StatusIndicator";
 
 export function DraftsPage() {
   const queryClient = useQueryClient();
-  // Request context: /drafts?request={id} is used by the Unified Request
-  // Workspace so the user keeps their request context (refresh-safe).
+  const { requestId: routeRequestId, draftId: routeDraftId } = useParams<{
+    requestId?: string;
+    draftId?: string;
+  }>();
   const [searchParams] = useSearchParams();
-  const contextRequestId = searchParams.get("request");
+  const queryRequestId = searchParams.get("request");
+  const queryDraftId = searchParams.get("draft");
+
+  const contextRequestId = routeRequestId || queryRequestId || null;
+  const contextDraftId = routeDraftId || queryDraftId || null;
+
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     contextRequestId,
   );
-  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
+  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(
+    contextDraftId,
+  );
   const [content, setContent] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (contextRequestId) setSelectedRequestId(contextRequestId);
+    if (contextDraftId) setSelectedDraftId(contextDraftId);
+  }, [contextRequestId, contextDraftId]);
 
   const requestsQuery = useQuery({
     queryKey: ["requests"],
@@ -35,7 +49,8 @@ export function DraftsPage() {
 
   const requests: RequestResponse[] = requestsQuery.data ?? [];
   const activeRequestId =
-    selectedRequestId ?? (requests.length > 0 ? requests[0].request_id : null);
+    selectedRequestId ?? contextRequestId ?? (requests.length > 0 ? requests[0].request_id : null);
+  const activeRequest = requests.find((r) => r.request_id === activeRequestId);
 
   const draftsQuery = useQuery({
     queryKey: ["drafts", activeRequestId],
@@ -44,8 +59,10 @@ export function DraftsPage() {
   });
 
   const drafts: DraftResponse[] = draftsQuery.data ?? [];
+  const activeDraftId = selectedDraftId ?? contextDraftId;
   const selectedDraft =
-    drafts.find((d) => d.draft_id === selectedDraftId) ?? null;
+    drafts.find((d) => String(d.draft_id) === String(activeDraftId)) ??
+    (drafts.length > 0 ? drafts[0] : null);
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -55,9 +72,8 @@ export function DraftsPage() {
     onSuccess: (created) => {
       setContent("");
       setErrorMessage(null);
-      setSelectedDraftId(created.draft_id);
+      setSelectedDraftId(String(created.draft_id));
       void queryClient.invalidateQueries({ queryKey: ["drafts", activeRequestId] });
-      // Draft creation records a draft_created/draft_edited audit event.
       void queryClient.invalidateQueries({
         queryKey: ["request-history", activeRequestId],
       });
@@ -123,42 +139,45 @@ export function DraftsPage() {
 
   return (
     <div>
-      {contextRequestId && (
-        <RequestContextBar requestId={contextRequestId} />
+      {activeRequestId && (
+        <RequestContextBar requestId={activeRequestId} />
       )}
       <PageHeader
         eyebrow="Rasikh workspace"
-        title="Drafts"
+        title="Drafts Workspace"
         description="Versioned legal drafts per matter. New versions append to the matter's draft history and start awaiting approval."
       />
 
-      <label className="auth-field">
-        Matter
-        <select
-          value={activeRequestId ?? ""}
-          onChange={(e) => {
-            setSelectedRequestId(e.target.value);
-            setSelectedDraftId(null);
-            setErrorMessage(null);
-          }}
-        >
-          {requests.map((r) => (
-            <option key={r.request_id} value={r.request_id}>
-              {r.request_id}
-              {r.org_id ? ` — ${r.org_id}` : ""}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {activeRequestId && (
-        <p className="auth-subtitle">
-          Matter record:{" "}
-          <Link className="text-link" to={`/requests/${encodeURIComponent(activeRequestId)}`}>
-            open {activeRequestId}
+      <div style={{ display: "flex", gap: "16px", alignItems: "center", marginBottom: "16px" }}>
+        <label className="auth-field" style={{ margin: 0, flexGrow: 1 }}>
+          Matter / Request
+          <select
+            value={activeRequestId ?? ""}
+            onChange={(e) => {
+              setSelectedRequestId(e.target.value);
+              setSelectedDraftId(null);
+              setErrorMessage(null);
+            }}
+          >
+            {requests.map((r) => (
+              <option key={r.request_id} value={r.request_id}>
+                {r.request_id}
+                {r.org_id ? ` — ${r.org_id}` : ""}
+                {r.request_type ? ` (${r.request_type})` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+        {activeRequestId && (
+          <Link
+            className="button-secondary"
+            to={`/requests/${encodeURIComponent(activeRequestId)}`}
+            style={{ marginTop: "22px" }}
+          >
+            ← Back to Request ({activeRequestId})
           </Link>
-        </p>
-      )}
+        )}
+      </div>
 
       {errorMessage && (
         <p className="auth-error" role="alert">{errorMessage}</p>
@@ -176,13 +195,14 @@ export function DraftsPage() {
         <Card className="mt-md">
           <EmptyState
             title="No drafts for this matter"
-            description="Create the first draft version below."
+            description="Generate an AI draft or create a new draft version below."
           />
         </Card>
       )}
 
       {drafts.length > 0 && (
         <Card className="mt-md">
+          <p className="eyebrow">Draft versions for {activeRequestId}</p>
           <DataTable<DraftResponse>
             getKey={(d) => String(d.draft_id)}
             columns={[
@@ -198,11 +218,12 @@ export function DraftsPage() {
                       padding: 0,
                       cursor: "pointer",
                       font: "inherit",
+                      fontWeight: (selectedDraft && String(selectedDraft.draft_id) === String(d.draft_id)) ? 700 : 400,
                     }}
                     onClick={() => setSelectedDraftId(String(d.draft_id))}
                   >
                     v{d.version}
-                    {selectedDraftId === d.draft_id ? " (selected)" : ""}
+                    {(selectedDraft && String(selectedDraft.draft_id) === String(d.draft_id)) ? " (active)" : ""}
                   </button>
                 ),
               },
@@ -211,12 +232,12 @@ export function DraftsPage() {
                 value: (d) => <StatusIndicator status={d.approval_state} />,
               },
               {
-                label: "Created",
-                value: (d) => new Date(d.created_at).toLocaleString(),
+                label: "Created by",
+                value: (d) => <code>{d.created_by ?? "AI Assistant"}</code>,
               },
               {
-                label: "Updated",
-                value: (d) => new Date(d.updated_at).toLocaleString(),
+                label: "Created at",
+                value: (d) => new Date(d.created_at).toLocaleString(),
               },
             ]}
             items={drafts}
@@ -226,23 +247,88 @@ export function DraftsPage() {
 
       {selectedDraft && (
         <Card className="mt-md">
-          <p className="eyebrow">Draft detail</p>
-          <h2 style={{ marginTop: "4px", fontSize: "20px" }}>
-            {activeRequestId} — v{selectedDraft.version}
-          </h2>
-          <StatusIndicator status={selectedDraft.approval_state} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div>
+              <p className="eyebrow">Draft detail</p>
+              <h2 style={{ marginTop: "4px", fontSize: "20px" }}>
+                {activeRequestId} — Draft v{selectedDraft.version}
+              </h2>
+            </div>
+            {activeRequestId && (
+              <Link
+                className="button-secondary"
+                to={`/requests/${encodeURIComponent(activeRequestId)}`}
+              >
+                ← Back to Request
+              </Link>
+            )}
+          </div>
+
+          <dl className="ws-meta mt-md">
+            <div>
+              <dt>Request ID</dt>
+              <dd><code>{activeRequestId}</code></dd>
+            </div>
+            <div>
+              <dt>Draft ID</dt>
+              <dd><code>{selectedDraft.draft_id}</code></dd>
+            </div>
+            <div>
+              <dt>Request Type</dt>
+              <dd>{activeRequest?.request_type ?? "Contract Review"}</dd>
+            </div>
+            <div>
+              <dt>Organisation / Matter</dt>
+              <dd>{activeRequest?.org_id ?? "Assigned Matter"}</dd>
+            </div>
+            <div>
+              <dt>Draft Status</dt>
+              <dd><StatusIndicator status={selectedDraft.approval_state} /></dd>
+            </div>
+            <div>
+              <dt>Created By</dt>
+              <dd><code>{selectedDraft.created_by ?? "AI Assistant"}</code></dd>
+            </div>
+            <div>
+              <dt>Created At</dt>
+              <dd>{new Date(selectedDraft.created_at).toLocaleString()}</dd>
+            </div>
+          </dl>
+
           <pre
             className="mt-md"
             style={{
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
               background: "rgba(15, 44, 89, 0.04)",
-              padding: "12px",
+              padding: "16px",
               borderRadius: "8px",
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "14px",
+              lineHeight: "1.6",
             }}
           >
             {selectedDraft.content}
           </pre>
+
+          <div className="mt-md" style={{ display: "flex", gap: "12px" }}>
+            {activeRequestId && (
+              <Link
+                className="button"
+                to={`/requests/${encodeURIComponent(activeRequestId)}`}
+              >
+                Return to Request Workspace
+              </Link>
+            )}
+            {activeRequestId && (
+              <Link
+                className="button-secondary"
+                to={`/requests/${encodeURIComponent(activeRequestId)}/approvals`}
+              >
+                Go to Approvals Queue
+              </Link>
+            )}
+          </div>
         </Card>
       )}
 

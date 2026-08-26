@@ -46,6 +46,7 @@ from sqlalchemy.orm import Session
 from app.models import Organisation, AuditEvent, Request
 from app.services import (  # noqa: E402  (import order kept flat for clarity)
     access_control,
+    ai_drafting,
     analysis_run,
     approval,
     document_retrieval,
@@ -191,8 +192,11 @@ def auto_intake_and_classify(
         result = llm.classify_request_via_llm(raw_content, available_orgs)
         
         final_org_id = org_id if org_id is not None else result.org_id
-        
-        if result.needs_clarification or (not final_org_id and not result.org_id):
+        final_request_type = result.request_type
+        if not final_request_type:
+            final_request_type = llm.deterministic_classify(raw_content)
+
+        if not final_request_type or not final_org_id:
             # Cannot confidently classify or map org
             request.status = "insufficient"
             session.add(
@@ -201,7 +205,7 @@ def auto_intake_and_classify(
                     event_type="classification_failed",
                     actor_id=None,
                     detail_reference=f"request:{request_id}",
-                    detail_json={"reason": result.reason, "needs_clarification": result.needs_clarification},
+                    detail_json={"reason": result.reason, "needs_clarification": True},
                 )
             )
             return request
@@ -213,7 +217,7 @@ def auto_intake_and_classify(
         classified = request_intake.classify_request(
             session,
             request_id=request_id,
-            request_type=result.request_type,
+            request_type=final_request_type,
         )
         return classified
     except Exception as exc:
@@ -468,6 +472,27 @@ def prepare_draft(
             request_id=request_id,
             content=content,
             created_at=created_at,
+            created_by=created_by,
+        )
+    except Exception as exc:
+        raise WorkflowStageError(STAGE_DRAFT, str(exc)) from exc
+
+
+def generate_ai_draft(
+    session: Session,
+    *,
+    request_id: str,
+    created_by: str | None = None,
+):
+    """Generate a draft from the completed analysis + reviewed findings.
+
+    Thin wrapper around :func:`ai_drafting.generate_ai_draft`, which composes
+    the grounded memo and persists it through :func:`drafting.create_draft`.
+    """
+    try:
+        return ai_drafting.generate_ai_draft(
+            session,
+            request_id=request_id,
             created_by=created_by,
         )
     except Exception as exc:

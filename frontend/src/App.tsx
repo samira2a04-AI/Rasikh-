@@ -55,9 +55,31 @@ export default function App() {
           path="/requests/:requestId/review"
           element={<ContractReviewPage />}
         />
+        <Route
+          path="/requests/:requestId/drafts"
+          element={<DraftsPage />}
+        />
+        <Route
+          path="/requests/:requestId/drafts/:draftId"
+          element={<DraftsPage />}
+        />
+        <Route
+          path="/requests/:requestId/approvals"
+          element={<ApprovalsPage />}
+        />
+        <Route
+          path="/requests/:requestId/approvals/:draftId"
+          element={<ApprovalsPage />}
+        />
+        <Route
+          path="/requests/:requestId/obligations"
+          element={<ObligationsPage />}
+        />
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/drafts" element={<DraftsPage />} />
+        <Route path="/drafts/:draftId" element={<DraftsPage />} />
         <Route path="/approvals" element={<ApprovalsPage />} />
+        <Route path="/approvals/:draftId" element={<ApprovalsPage />} />
         <Route path="/obligations" element={<ObligationsPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="*" element={<Navigate replace to="/dashboard" />} />

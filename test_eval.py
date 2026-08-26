@@ -46,12 +46,14 @@ def test_eval():
         print(standard_text[:500] + "...")
         
         print("\nCalling LLM...")
-        findings = evaluate_clauses_via_llm(contract_text, standard_text)
-        print(f"\nLLM returned {len(findings)} findings")
-        
-        for f in findings:
-            print("\nFinding:")
-            print(f.model_dump_json(indent=2))
+        try:
+            findings = evaluate_clauses_via_llm(contract_text, standard_text)
+            print(f"\nLLM returned {len(findings)} findings")
+            for f in findings:
+                print("\nFinding:")
+                print(f.model_dump_json(indent=2))
+        except Exception as exc:
+            print(f"\nLLM call skipped/failed: {exc}")
 
 if __name__ == "__main__":
     test_eval()

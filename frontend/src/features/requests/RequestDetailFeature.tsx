@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { listContracts } from "../../api/contracts";
 import { listOrganisations } from "../../api/organisations";
 import { getRequest, getRequestView, resolveRequest } from "../../api/requests";
 import { getReview, runReview } from "../../api/reviews";
+import { generateAIDraft } from "../../api/drafts";
 import { ApiError } from "../../api/client";
 import type {
   AnalysisRunSummary,
@@ -95,6 +96,11 @@ function deriveSteps(opts: {
         findingCount > 0 ? "done" : hasAnalysis && hasOrg ? "active" : "pending",
     },
     {
+      key: "draft",
+      label: "Draft",
+      state: draftCount > 0 ? "done" : findingCount > 0 ? "active" : "pending",
+    },
+    {
       key: "approval",
       label: "Approval",
       state: approvalCount > 0 ? "done" : draftCount > 0 ? "active" : "pending",
@@ -157,6 +163,8 @@ export function RequestDetailFeature() {
   const navigate = useNavigate();
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [resolveError, setResolveError] = useState<string | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
   const [selectedOrgId, setSelectedOrgId] = useState("");
   const [selectedContractId, setSelectedContractId] = useState("");
   const [selectedRequestType, setSelectedRequestType] = useState<
@@ -269,6 +277,37 @@ export function RequestDetailFeature() {
     },
   });
 
+  const draftMutation = useMutation({
+    mutationFn: () => generateAIDraft(requestId),
+    onSuccess: (created) => {
+      setDraftError(null);
+      setDraftNotice(
+        `AI draft v${created.version} generated and saved. It is awaiting approval.`,
+      );
+      void queryClient.invalidateQueries({ queryKey: ["drafts", requestId] });
+      void queryClient.invalidateQueries({
+        queryKey: ["request-history", requestId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["request-view", requestId],
+      });
+      navigate(
+        `/requests/${encodeURIComponent(requestId)}/drafts/${encodeURIComponent(created.draft_id)}`,
+      );
+    },
+    onError: (err) => {
+      setDraftNotice(null);
+      if (err instanceof ApiError && typeof err.detail === "string") {
+        // e.g. "all findings must be human-reviewed..." (409) or request not found (404).
+        setDraftError(err.detail);
+      } else {
+        setDraftError(
+          "Unable to generate an AI draft. Complete the analysis and human review, then try again.",
+        );
+      }
+    },
+  });
+
   // ---- derived view model --------------------------------------------------
   const view = viewQuery.data;
   const counts = view?.counts;
@@ -324,6 +363,28 @@ export function RequestDetailFeature() {
     });
   }, [data, view, counts]);
 
+  const decisionLabel = useMemo(() => {
+    if (view?.decision) return view.decision;
+    if (!data) return "INTAKE";
+    if (data.status === "access_denied" || view?.access_decisions?.some((a) => a.outcome === "unauthorized")) {
+      return "REFUSE_ACCESS";
+    }
+    if (data.status === "escalated" || (view?.escalations?.length ?? 0) > 0) {
+      return "ESCALATE";
+    }
+    if (data.status === "insufficient") {
+      return "REQUEST_INFO";
+    }
+    if (view?.findings?.some((f) => !f.grounded)) {
+      return "NOT_IN_DOCUMENTS";
+    }
+    if (data.request_type === "contract_review") return "REVIEW_CONTRACT";
+    if (data.request_type === "consultation") return "ANSWER_CONSULTATION";
+    if (data.request_type === "meeting_prep") return "PREP_MEETING";
+    if (data.request_type === "obligation_check") return "FLAG_OBLIGATION";
+    return data.status.toUpperCase();
+  }, [data, view]);
+
   // ---- loading / error states ----------------------------------------------
   if (isPending) {
     return <div className="state-panel">Loading request workspace...</div>;
@@ -355,6 +416,18 @@ export function RequestDetailFeature() {
               <dt>Request ID</dt>
               <dd>
                 <code>{data.request_id}</code>
+              </dd>
+            </div>
+            <div>
+              <dt>Request Type</dt>
+              <dd>{typeLabel}</dd>
+            </div>
+            <div>
+              <dt>Decision</dt>
+              <dd>
+                <span className="ws-sev" style={{ background: "rgba(0,0,0,0.06)", fontWeight: 600, color: "var(--color-fg-default)" }}>
+                  {decisionLabel}
+                </span>
               </dd>
             </div>
             <div>
@@ -392,6 +465,40 @@ export function RequestDetailFeature() {
 
       {/* --------------------------------------------- Workflow stepper --- */}
       <WorkflowStepper steps={steps} />
+
+      {/* --------------------------------------------- Security & Access Denial --- */}
+      {(data.status === "access_denied" ||
+        view?.access_decisions?.some((a) => a.outcome === "unauthorized")) && (
+        <Card className="mt-md" style={{ borderLeft: "4px solid #e53e3e", background: "#fff5f5" }}>
+          <p className="eyebrow" style={{ color: "#c53030" }}>Security &amp; Authorization</p>
+          <h2 style={{ fontSize: "18px", color: "#9b2c2c", margin: "4px 0" }}>
+            ACCESS DENIED — Document Access Halted
+          </h2>
+          <p style={{ color: "#742a2a", margin: "8px 0" }}>
+            Access check failed prior to reading matter documents. Requester <code>{data.requester_id}</code> is not on the assigned matter team for <strong>{data.org_id ?? "this organisation"}</strong>.
+          </p>
+          <p className="auth-subtitle" style={{ color: "#9b2c2c", margin: 0 }}>
+            Rule SEC-001 enforced: document retrieval was stopped. No protected contract text or confidential findings are rendered.
+          </p>
+        </Card>
+      )}
+
+      {/* --------------------------------------------- Escalation Banner ---------- */}
+      {(data.status === "escalated" || (view?.escalations?.length ?? 0) > 0) && (
+        <Card className="mt-md" style={{ borderLeft: "4px solid #dd6b20", background: "#fffaf0" }}>
+          <p className="eyebrow" style={{ color: "#c05621" }}>Workflow Escalation</p>
+          <h2 style={{ fontSize: "18px", color: "#9c4221", margin: "4px 0" }}>
+            ESCALATED TO HUMAN COUNSEL
+          </h2>
+          <p style={{ color: "#7b341e", margin: "8px 0" }}>
+            Reason: <strong>{view?.escalations[0]?.reason?.replaceAll("_", " ") ?? "Litigation / Statutory trigger"}</strong>.
+            Routed to senior counsel: <code>{view?.escalations[0]?.routed_to_id ?? "Legal Counsel"}</code>.
+          </p>
+          <p className="auth-subtitle" style={{ color: "#9c4221", margin: 0 }}>
+            Rule ESC-006 enforced: no automated draft legal answer is produced when an instruction requires senior escalation.
+          </p>
+        </Card>
+      )}
 
       {/* ------------------------- Organisation resolution (when needed) -- */}
       {data.status === "insufficient" && !data.org_id && (
@@ -449,6 +556,7 @@ export function RequestDetailFeature() {
       )}
 
       {/* --------------------------------------------- AI Analysis hero --- */}
+      {data.status !== "access_denied" && (
       <section className="ws-hero mt-md">
         <div className="ws-hero-head">
           <div>
@@ -540,29 +648,64 @@ export function RequestDetailFeature() {
           </div>
         </div>
 
-        <div className="ws-hero-actions">
-          {canReview && (
-            <button
-              type="button"
-              className="button-secondary"
-              disabled={runMutation.isPending}
-              onClick={() => runMutation.mutate()}
-            >
-              {runMutation.isPending
-                ? "Analyzing…"
-                : counts && counts.findings > 0
-                  ? "Re-run analysis"
-                  : "Run analysis"}
-            </button>
-          )}
-          <Link
-            className="button"
-            to={`/requests/${encodeURIComponent(data.request_id)}/review`}
-          >
-            View Full Analysis
-          </Link>
-        </div>
+        {(() => {
+          const isEscalatedOrRefused =
+            data.status === "escalated" ||
+            data.status === "access_denied" ||
+            (view?.escalations?.length ?? 0) > 0 ||
+            view?.decision === "ESCALATE" ||
+            view?.decision === "REFUSE_ACCESS" ||
+            view?.decision === "REFUSE_OVERRIDE";
+          const isObligationCheck = data.request_type === "obligation_check";
+
+          return (
+            <div className="ws-hero-actions">
+              {canReview && !isObligationCheck && !isEscalatedOrRefused && (
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={runMutation.isPending}
+                  onClick={() => runMutation.mutate()}
+                >
+                  {runMutation.isPending
+                    ? "Analyzing…"
+                    : counts && counts.findings > 0
+                      ? "Re-run analysis"
+                      : "Run analysis"}
+                </button>
+              )}
+              {analysis?.status === "completed" && !isEscalatedOrRefused && (
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={draftMutation.isPending}
+                  onClick={() => draftMutation.mutate()}
+                >
+                  {draftMutation.isPending
+                    ? "Generating…"
+                    : counts && counts.drafts > 0
+                      ? "Generate new draft"
+                      : "Generate AI draft"}
+                </button>
+              )}
+              <Link
+                className="button"
+                to={`/requests/${encodeURIComponent(data.request_id)}/review`}
+              >
+                View Full Analysis
+              </Link>
+            </div>
+          );
+        })()}
+        {draftMutation.isPending && (
+          <p className="auth-subtitle">Composing the grounded draft…</p>
+        )}
+        {draftError && <p className="auth-error" role="alert">{draftError}</p>}
+        {draftNotice && !draftError && (
+          <p className="auth-subtitle">{draftNotice}</p>
+        )}
       </section>
+      )}
 
       {/* ---------------- Needs attention + work product (2-col) --------- */}
       <div className="ws-columns mt-md">
@@ -591,7 +734,10 @@ export function RequestDetailFeature() {
         <section aria-label="Work product">
           <p className="eyebrow">Work product</p>
           <div className="ws-cards ws-cards-compact">
-            <Link className="ws-card" to="/drafts">
+            <Link
+              className="ws-card"
+              to={`/requests/${encodeURIComponent(data.request_id)}/drafts`}
+            >
               <span className="ws-card-label">Drafts</span>
               <span className="ws-card-value">
                 {counts?.drafts ?? 0}
@@ -605,7 +751,10 @@ export function RequestDetailFeature() {
                     : "all decided"}
               </span>
             </Link>
-            <Link className="ws-card" to="/approvals">
+            <Link
+              className="ws-card"
+              to={`/requests/${encodeURIComponent(data.request_id)}/approvals`}
+            >
               <span className="ws-card-label">Approvals</span>
               <span className="ws-card-value">
                 {counts?.approvals ?? 0}
@@ -643,6 +792,7 @@ export function RequestDetailFeature() {
       </div>
 
       {/* ------------------------------------------------ Findings -------- */}
+      {data.status !== "access_denied" && (
       <Card className="mt-md">
         <div className="ws-section-head">
           <div>
@@ -668,23 +818,52 @@ export function RequestDetailFeature() {
           <ul className="ws-finding-list">
             {topFindings.map((f) => (
               <li key={f.finding_id} className="ws-finding">
-                <div className="ws-finding-tags">
+                <div className="ws-finding-tags" style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "6px" }}>
                   <SeverityBadge rating={f.risk_rating} />
                   {f.sharia_sensitive_flag && (
                     <span className="ws-sev ws-sev-sharia">sharia-sensitive</span>
                   )}
-                  {!f.grounded && (
+                  {!f.grounded ? (
                     <span className="ws-sev ws-sev-ungrounded">
-                      needs citation check
+                      Not in documents
+                    </span>
+                  ) : (
+                    <span className="ws-sev" style={{ background: "#e6fffa", color: "#234e52", border: "1px solid #b2f5ea" }}>
+                      ✓ Grounded
                     </span>
                   )}
                 </div>
                 <p className="ws-finding-text">{f.statement}</p>
+
+                {/* Grounded Citations (Task 8) */}
+                {f.citations && f.citations.length > 0 && (
+                  <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1px dashed rgba(0,0,0,0.1)", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    <span style={{ fontSize: "12px", color: "var(--color-fg-muted)", fontWeight: 500 }}>Citations:</span>
+                    {f.citations.map((c) => (
+                      <span
+                        key={c.citation_id}
+                        style={{
+                          fontSize: "12px",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background: c.source_type === "contract_clause" ? "#ebf8ff" : "#f7fafc",
+                          color: c.source_type === "contract_clause" ? "#2b6cb0" : "#4a5568",
+                          border: "1px solid rgba(0,0,0,0.1)",
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        {c.source_type === "contract_clause" ? "📄 " : "📜 "}
+                        {c.clause_reference ?? c.source_type}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         )}
       </Card>
+      )}
 
       {/* ------------------------------- Organization Obligations --------- */}
       <Card className="mt-md">

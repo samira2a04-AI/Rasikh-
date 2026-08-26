@@ -154,6 +154,106 @@ def _cleanup_request_chain(request_id: str) -> None:
             select(AnalysisRun).where(AnalysisRun.request_id == request_id)
         ):
             session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
+        for run_row in session.scalars(
+            select(AnalysisRun).where(AnalysisRun.request_id == request_id)
+        ):
+            session.delete(run_row)
         for d in drafts:
             session.delete(d)
         for ad_row in session.scalars(
@@ -437,6 +537,14 @@ def test_obligation_escalation_appears():
             "request_type": "contract_review",
         },
     )
+    # Ensure OB-04 has no pre-existing escalation in DB before running test
+    with SessionLocal() as session:
+        for e in session.scalars(
+            select(Escalation).where(Escalation.obligation_id == "OB-04")
+        ):
+            session.delete(e)
+        session.commit()
+
     try:
         resp = client.post(
             f"/requests/{request_id}/review",

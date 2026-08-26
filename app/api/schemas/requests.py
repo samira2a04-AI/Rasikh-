@@ -77,6 +77,27 @@ class ApprovalSummary(BaseModel):
     decided_at: datetime
 
 
+class AccessDecisionSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    access_decision_id: UUID
+    outcome: str
+    basis: str
+    member_id: str
+    org_id: str
+    decided_at: datetime
+
+
+class CitationSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    citation_id: UUID
+    source_type: str
+    contract_clause_id: Optional[UUID] = None
+    standard_clause_id: Optional[UUID] = None
+    clause_reference: Optional[str] = None
+
+
 class FindingSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -85,6 +106,7 @@ class FindingSummary(BaseModel):
     grounded: bool
     risk_rating: Optional[str] = None
     sharia_sensitive_flag: bool
+    citations: list[CitationSummary] = []
 
 
 class ObligationSummary(BaseModel):
@@ -144,8 +166,10 @@ class RequestViewResponse(BaseModel):
     """Unified request-centred view: the request plus everything derived from it."""
 
     request: RequestResponse
+    decision: Optional[str] = None
     answer: Optional[str] = None
     analysis: Optional[AnalysisRunSummary] = None
+    access_decisions: list[AccessDecisionSummary] = []
     drafts: list[DraftSummary] = []
     approvals: list[ApprovalSummary] = []
     findings: list[FindingSummary] = []
@@ -159,6 +183,7 @@ class RequestRegistryRow(BaseModel):
     """One row of the request registry: a request plus deterministic counts."""
 
     request: RequestResponse
+    decision: Optional[str] = None
     has_answer: bool
     draft_count: int
     approval_count: int

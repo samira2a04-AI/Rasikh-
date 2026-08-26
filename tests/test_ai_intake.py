@@ -121,3 +121,38 @@ def test_explicit_user_selection_overrides_ai(monkeypatch):
         for evt in session.query(AuditEvent).filter_by(request_id=request_id).all():
             session.delete(evt)
         session.commit()
+
+
+@pytest.mark.parametrize(
+    "text,expected_type",
+    [
+        (
+            "Review the attached distribution agreement for compliance risks before signature.",
+            "contract_review",
+        ),
+        (
+            "Can you explain whether the client can terminate this agreement under the current contract?",
+            "consultation",
+        ),
+        (
+            "Identify risky clauses in this contract.",
+            "contract_review",
+        ),
+        (
+            "What are our rights if the client terminates the agreement?",
+            "consultation",
+        ),
+        (
+            "Prepare a briefing for my meeting with the client tomorrow.",
+            "meeting_prep",
+        ),
+        (
+            "Which obligations for this organization are overdue or due soon?",
+            "obligation_check",
+        ),
+    ],
+)
+def test_intent_based_classification_cases(text, expected_type):
+    """Verify that request classification prioritises intent over plain keyword presence."""
+    result = llm.deterministic_classify(text)
+    assert result == expected_type

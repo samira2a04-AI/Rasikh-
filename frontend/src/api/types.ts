@@ -89,6 +89,7 @@ export interface EscalationResponse {
 export interface ReviewResponse {
   request_id: string;
   access_decision: string;
+  engine?: string | null;
   findings: FindingResponse[];
   obligations: ObligationResponse[];
   escalations: EscalationResponse[];
@@ -185,12 +186,30 @@ export interface ApprovalSummary {
   decided_at: string;
 }
 
+export interface AccessDecisionSummary {
+  access_decision_id: string;
+  outcome: string;
+  basis: string;
+  member_id: string;
+  org_id: string;
+  decided_at: string;
+}
+
+export interface CitationSummary {
+  citation_id: string;
+  source_type: string;
+  contract_clause_id: string | null;
+  standard_clause_id: string | null;
+  clause_reference?: string | null;
+}
+
 export interface FindingSummary {
   finding_id: string;
   statement: string;
   grounded: boolean;
   risk_rating: string | null;
   sharia_sensitive_flag: boolean;
+  citations?: CitationSummary[];
 }
 
 export interface ObligationSummary {
@@ -238,8 +257,10 @@ export interface AnalysisRunSummary {
 
 export interface RequestView {
   request: RequestResponse;
+  decision?: string | null;
   answer: string | null;
   analysis: AnalysisRunSummary | null;
+  access_decisions?: AccessDecisionSummary[];
   drafts: DraftSummary[];
   approvals: ApprovalSummary[];
   findings: FindingSummary[];
@@ -251,6 +272,7 @@ export interface RequestView {
 
 export interface RequestRegistryRow {
   request: RequestResponse;
+  decision?: string | null;
   has_answer: boolean;
   draft_count: number;
   approval_count: number;

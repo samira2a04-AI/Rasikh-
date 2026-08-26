@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import (
@@ -16,7 +16,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database.base import Base
 
@@ -65,6 +65,12 @@ class Draft(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+    @validates("created_at", "updated_at")
+    def _validate_dates(self, key, value):
+        if value is not None and getattr(value, "tzinfo", None) is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
     # Separation of duties (APR-006): the member who created this draft may not
     # also decide it. Nullable so legacy drafts without a recorded author remain
     # valid. New drafts are always attributed.

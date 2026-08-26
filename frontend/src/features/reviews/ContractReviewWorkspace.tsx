@@ -27,7 +27,7 @@ function SummaryCard({
     accent,
 }: {
     label: string;
-    value: number;
+    value: number | string;
     accent?: boolean;
 }) {
     return (
@@ -351,7 +351,7 @@ export function ContractReviewWorkspace() {
                 </div>
                 <div className="crv-header-badges">
                     <span className="crv-badge crv-badge--completed">
-                        AI Analysis: <strong>COMPLETED</strong>
+                        AI Analysis: <strong>{review?.engine === "llm" ? "COMPLETED (RAG + Gemini)" : "COMPLETED WITH FALLBACK"}</strong>
                     </span>
                     <span
                         className={
@@ -366,6 +366,10 @@ export function ContractReviewWorkspace() {
             </header>
 
             <section className="crv-summary">
+                <SummaryCard
+                    label="Engine Mode"
+                    value={review?.engine === "llm" ? "RAG + Gemini" : "Deterministic Fallback"}
+                />
                 <SummaryCard label="Total Findings" value={stats.total} accent />
                 <SummaryCard label="Grounded" value={stats.grounded} />
                 <SummaryCard label="Human-Reviewed" value={stats.reviewed} />

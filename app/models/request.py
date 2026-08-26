@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Text, event, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.database.base import Base
 
@@ -58,6 +58,12 @@ class Request(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+    @validates("created_at")
+    def validate_created_at(self, key, value):
+        if value is not None and getattr(value, "tzinfo", None) is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
 
     # Relationships (as documented in docs/data-schema.md §4)
     requester: Mapped[TeamMember] = relationship(

@@ -25,3 +25,15 @@ export function getDraft(
     `/requests/${encodeURIComponent(requestId)}/drafts/${encodeURIComponent(draftId)}`,
   );
 }
+
+/**
+ * Ask the backend to generate an AI draft from the request's completed
+ * analysis and human-reviewed findings. The resulting version enters
+ * "awaiting_approval" and flows through the normal approval workflow.
+ */
+export function generateAIDraft(requestId: string): Promise<DraftResponse> {
+  return fetchJson<DraftResponse>(
+    `/requests/${encodeURIComponent(requestId)}/drafts/generate`,
+    { method: "POST" },
+  );
+}

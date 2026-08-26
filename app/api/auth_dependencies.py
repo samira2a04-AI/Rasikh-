@@ -58,6 +58,24 @@ def get_current_user(
     return user
 
 
+def get_optional_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
+    session: Annotated[Session, Depends(get_session)],
+) -> User | None:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        subject = str(payload.get("sub", ""))
+        if subject.isdigit():
+            user = session.get(User, int(subject))
+            if user and user.is_active:
+                return user
+    except Exception:
+        pass
+    return None
+
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 _FORBIDDEN_EXCEPTION = HTTPException(

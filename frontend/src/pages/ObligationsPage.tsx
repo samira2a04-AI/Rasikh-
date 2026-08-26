@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { me } from "../api/auth";
@@ -15,11 +15,10 @@ import { RequestContextBar } from "../components/RequestContextBar";
 import { StatusIndicator } from "../components/StatusIndicator";
 
 export function ObligationsPage() {
-  // Request context: /obligations?request={id} comes from the Unified Request
-  // Workspace. Obligations remain organisation-scoped — the context bar only
-  // preserves navigation back to the request.
+  const { requestId: routeRequestId } = useParams<{ requestId?: string }>();
   const [searchParams] = useSearchParams();
-  const contextRequestId = searchParams.get("request");
+  const queryRequestId = searchParams.get("request");
+  const contextRequestId = routeRequestId || queryRequestId || null;
   const meQuery = useQuery({ queryKey: ["me"], queryFn: me });
   const role = meQuery.data?.role ?? null;
 
@@ -96,6 +95,9 @@ export function ObligationsPage() {
 
   return (
     <div>
+      {contextRequestId && (
+        <RequestContextBar requestId={contextRequestId} />
+      )}
       <PageHeader
         eyebrow="Rasikh workspace"
         title="Obligations"
@@ -202,14 +204,25 @@ export function ObligationsPage() {
 
           {result.escalations_created.length > 0 && (
             <Card className="mt-md">
-              <p className="eyebrow">
+              <p className="eyebrow" style={{ color: "var(--red-11, #e5484d)" }}>
                 Escalations created ({result.escalations_created.length})
               </p>
-              {result.escalations_created.map((esc) => (
-                <p key={String(esc.escalation_id)}>
-                  {esc.obligation_id} — {esc.reason}, routed to {esc.routed_to_id}
-                </p>
-              ))}
+              <p className="auth-subtitle" style={{ marginBottom: "12px" }}>
+                Rulebook 6.2 threshold triggered: overdue/urgent obligations have been hard-escalated to senior counsel.
+              </p>
+              <DataTable<ObligationSweepResponse["escalations_created"][number]>
+                getKey={(esc) => esc.escalation_id}
+                columns={[
+                  { label: "Escalation ID", value: (esc) => <code>{esc.escalation_id}</code> },
+                  { label: "Obligation ID", value: (esc) => <code>{esc.obligation_id}</code> },
+                  {
+                    label: "Reason",
+                    value: (esc) => <StatusIndicator status={esc.reason} />,
+                  },
+                  { label: "Routed Counsel", value: (esc) => <code>{esc.routed_to_id}</code> },
+                ]}
+                items={result.escalations_created}
+              />
             </Card>
           )}
         </>

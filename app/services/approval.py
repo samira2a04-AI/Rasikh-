@@ -36,6 +36,7 @@ the transaction — decision + state change + audit event roll back together.
 
 from __future__ import annotations
 
+import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -60,7 +61,13 @@ class ApprovalWorkflowError(ValueError):
 
 def _load_current_draft(session: Session, draft_id: object) -> Draft:
     """Load the draft and verify it is the current version of its request."""
-    draft = session.get(Draft, draft_id)
+    val_id = draft_id
+    if isinstance(draft_id, str):
+        try:
+            val_id = uuid.UUID(draft_id)
+        except (ValueError, AttributeError):
+            val_id = draft_id
+    draft = session.get(Draft, val_id)
     if draft is None:
         raise ApprovalWorkflowError(f"unknown draft_id {draft_id!r}")
 

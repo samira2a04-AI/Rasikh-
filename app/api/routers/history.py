@@ -6,10 +6,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.auth_dependencies import get_current_user
+from app.api.auth_dependencies import CurrentUser, get_current_user
 from app.api.dependencies import get_session
 from app.api.schemas import AuditEventResponse, RequestHistoryResponse
-from app.models import AuditEvent, Request
+from app.models import AuditEvent, MatterAssignment, Request
+from app.services import access_control
 
 router = APIRouter(prefix="/requests", tags=["history"], dependencies=[Depends(get_current_user)])
 
@@ -17,11 +18,18 @@ router = APIRouter(prefix="/requests", tags=["history"], dependencies=[Depends(g
 @router.get("/{request_id}/history", response_model=RequestHistoryResponse)
 def get_request_history(
     request_id: str,
+    current_user: CurrentUser,
     session: Session = Depends(get_session),
 ) -> RequestHistoryResponse:
     """Return the full audit lifecycle of a request."""
-    if session.get(Request, request_id) is None:
+    req = session.get(Request, request_id)
+    if req is None:
         raise HTTPException(status_code=404, detail=f"unknown request_id {request_id!r}")
+
+    if req.org_id and current_user.member_id:
+        access_res = access_control.check_access(session, member_id=current_user.member_id, org_id=req.org_id)
+        if not access_res.authorized:
+            raise HTTPException(status_code=403, detail="Not authorized to view history for this matter")
 
     events = list(
         session.scalars(
@@ -45,6 +53,7 @@ audit_router = APIRouter(prefix="/audit", tags=["history"], dependencies=[Depend
 
 @audit_router.get("", response_model=list[AuditEventResponse])
 def list_audit_events(
+    current_user: CurrentUser,
     event_type: str | None = Query(default=None),
     request_id: str | None = Query(default=None),
     actor_id: str | None = Query(default=None),
@@ -61,6 +70,16 @@ def list_audit_events(
     ``actor_id``.
     """
     stmt = select(AuditEvent)
+    if current_user.member_id:
+        assigned_orgs_subquery = select(MatterAssignment.org_id).where(
+            MatterAssignment.member_id == current_user.member_id
+        )
+        assigned_requests_subquery = select(Request.request_id).where(
+            (Request.org_id.in_(assigned_orgs_subquery)) | (Request.org_id.is_(None))
+        )
+        stmt = stmt.where(
+            (AuditEvent.request_id.in_(assigned_requests_subquery)) | (AuditEvent.request_id.is_(None))
+        )
     if event_type is not None:
         stmt = stmt.where(AuditEvent.event_type == event_type)
     if request_id is not None:

@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
 from app.services.access_control import AccessControlInputError
+from app.services.ai_drafting import AIDraftingError
 from app.services.approval import ApprovalWorkflowError
 from app.services.document_retrieval import DocumentAccessDenied
 from app.services.drafting import DraftingError
@@ -89,6 +90,12 @@ def translate_error(exc: Exception) -> HTTPException:
         return HTTPException(status_code=400, detail=detail)
     if isinstance(cause, DraftingError):
         code = 404 if "unknown request_id" in detail else 400
+        return HTTPException(status_code=code, detail=detail)
+    if isinstance(cause, AIDraftingError):
+        # Generation can only be refused when the request is unknown (404) or a
+        # drafting precondition is unmet (409: no completed analysis / findings
+        # not yet human-reviewed).
+        code = 404 if "unknown request_id" in detail else 409
         return HTTPException(status_code=code, detail=detail)
     return HTTPException(status_code=500, detail="internal workflow error")
 

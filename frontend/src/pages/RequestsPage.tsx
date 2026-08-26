@@ -208,15 +208,16 @@ export function RequestsPage() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["Request", "Type", "AI Result", "Drafts", "Org Obligations", "Approvals", "Findings", "Status"].map(
+                  {["Request ID", "Org / Matter", "Request Type", "Decision / Status", "Requester", "Outputs"].map(
                     (heading) => (
                       <th
                         key={heading}
                         style={{
                           textAlign: "left",
-                          padding: "8px",
+                          padding: "10px 8px",
                           borderBottom: "1px solid rgba(0,0,0,0.1)",
                           fontSize: "13px",
+                          fontWeight: 600,
                         }}
                       >
                         {heading}
@@ -227,53 +228,45 @@ export function RequestsPage() {
               </thead>
               <tbody>
                 {filteredRows.map((row) => (
-                  <tr key={row.request.request_id}>
-                    <td style={{ padding: "8px" }}>
+                  <tr key={row.request.request_id} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                    <td style={{ padding: "10px 8px" }}>
                       <Link className="text-link" to={`/requests/${encodeURIComponent(row.request.request_id)}`}>
-                        {row.request.request_id}
+                        <code>{row.request.request_id}</code>
                       </Link>
                     </td>
-                    <td style={{ padding: "8px" }}>
-                      {row.request.request_type?.replaceAll("_", " ") ?? "Unclassified"}
+                    <td style={{ padding: "10px 8px" }}>
+                      {row.request.org_id ? <strong>{row.request.org_id}</strong> : <span className="auth-subtitle">Unassigned</span>}
                     </td>
-                    <td style={{ padding: "8px" }} title="Derived from the latest draft content">
-                      {row.has_answer ? "✓" : "—"}
+                    <td style={{ padding: "10px 8px" }}>
+                      <span className="ws-sev" style={{ background: "rgba(0,0,0,0.04)", padding: "2px 6px", borderRadius: "4px", fontSize: "12px" }}>
+                        {row.request.request_type ? row.request.request_type.replaceAll("_", " ") : "Unclassified"}
+                      </span>
                     </td>
-                    <td style={{ padding: "8px" }}>
-                      {row.draft_count > 0 ? (
-                        <Link className="text-link" to="/drafts">{row.draft_count}</Link>
-                      ) : (
-                        row.draft_count
-                      )}
+                    <td style={{ padding: "10px 8px" }}>
+                      <span
+                        className="ws-sev"
+                        style={{
+                          background: "rgba(0,0,0,0.06)",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: "var(--color-fg-default)",
+                        }}
+                      >
+                        {row.decision ?? row.request.status.toUpperCase()}
+                      </span>
                     </td>
-                    <td style={{ padding: "8px" }} title="Organisation-scoped obligations (not request-specific)">
-                      {row.obligation_count > 0 ? (
-                        <Link className="text-link" to="/obligations">{row.obligation_count}</Link>
-                      ) : (
-                        row.obligation_count
-                      )}
+                    <td style={{ padding: "10px 8px" }}>
+                      <code>{row.request.requester_id}</code>
                     </td>
-                    <td style={{ padding: "8px" }}>
-                      {row.approval_count > 0 ? (
-                        <Link className="text-link" to="/approvals">{row.approval_count}</Link>
-                      ) : (
-                        row.approval_count
-                      )}
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      {row.finding_count > 0 ? (
-                        <Link
-                          className="text-link"
-                          to={`/requests/${encodeURIComponent(row.request.request_id)}/review`}
-                        >
-                          {row.finding_count}
-                        </Link>
-                      ) : (
-                        row.finding_count
-                      )}
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      <StatusIndicator status={row.request.status} />
+                    <td style={{ padding: "10px 8px", fontSize: "13px" }}>
+                      <span style={{ display: "inline-flex", gap: "8px", alignItems: "center" }}>
+                        {row.has_answer && <span title="AI Answer generated">✓ Answer</span>}
+                        {row.draft_count > 0 && <Link className="text-link" to={`/requests/${encodeURIComponent(row.request.request_id)}/drafts`}>{row.draft_count} draft(s)</Link>}
+                        {row.finding_count > 0 && <Link className="text-link" to={`/requests/${encodeURIComponent(row.request.request_id)}/review`}>{row.finding_count} finding(s)</Link>}
+                        {row.approval_count > 0 && <Link className="text-link" to={`/requests/${encodeURIComponent(row.request.request_id)}/approvals`}>{row.approval_count} approval(s)</Link>}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -303,28 +296,14 @@ export function RequestsPage() {
             />
           </label>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <label className="auth-field">
-              Request type
-              <select
-                value={requestType}
-                onChange={(e) => setRequestType(e.target.value as "" | RequestType)}
-              >
-                {REQUEST_TYPES.map((t) => (
-                  <option key={t.label} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
+          <div style={{ marginTop: "12px" }}>
             <label className="auth-field">
               Organisation (optional)
               <input
                 type="text"
                 value={orgId}
                 onChange={(e) => setOrgId(e.target.value)}
-                placeholder="org identifier"
+                placeholder="e.g. ORG-1007"
               />
             </label>
           </div>

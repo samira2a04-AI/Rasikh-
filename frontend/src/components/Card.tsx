@@ -1,15 +1,16 @@
 "use client";
 
 import { designTokens } from "../tokens";
-import { type ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 interface CardProps {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
+  style?: CSSProperties;
 }
 
-export function Card({ children, className = "", onClick }: CardProps) {
+export function Card({ children, className = "", onClick, style }: CardProps) {
   const baseClasses = "card";
   const interactiveClasses = onClick ? "cursor-pointer" : "";
   
@@ -30,6 +31,7 @@ export function Card({ children, className = "", onClick }: CardProps) {
         backgroundColor: designTokens.colors.surface.paper,
         transition: designTokens.transitions.normal,
         padding: designTokens.spacing.lg,
+        ...style,
       }}
     >
       {children}

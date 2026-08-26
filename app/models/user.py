@@ -61,7 +61,7 @@ class User(Base):
         Boolean,
         nullable=False,
         default=True,
-        server_default=func.true(),
+        server_default=text("true"),
     )
     role: Mapped[str] = mapped_column(
         Text,

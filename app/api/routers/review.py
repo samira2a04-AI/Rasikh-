@@ -79,6 +79,7 @@ def _build_review_response(request_id: str, result) -> ReviewResponse:
     return ReviewResponse(
         request_id=request_id,
         access_decision=result.access_decision.outcome,
+        engine=result.analysis_run.engine if getattr(result, "analysis_run", None) else None,
         findings=findings,
         obligations=obligations,
         escalations=escalations,
@@ -105,6 +106,7 @@ def run_review(
             member_id=request.member_id,
             org_id=request.org_id,
             contract_id=getattr(request, "contract_id", None),
+            reference_date=getattr(request, "reference_date", None),
         )
         response = _build_review_response(request_id, result)
         session.commit()
@@ -120,6 +122,11 @@ def get_review(
     req = session.get(Request, request_id)
     if req is None:
         raise HTTPException(status_code=404, detail=f"unknown request_id {request_id!r}")
+
+    if req.org_id and current_user.member_id:
+        access_res = access_control.check_access(session, member_id=current_user.member_id, org_id=req.org_id)
+        if not access_res.authorized:
+            raise HTTPException(status_code=403, detail="Not authorized to view review for this matter")
 
     if not req.access_decisions:
         raise HTTPException(status_code=404, detail="No review found for this request")

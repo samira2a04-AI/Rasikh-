@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { approveDraft, rejectDraft } from "../api/approvals";
@@ -22,15 +22,20 @@ const OPEN_STATES = new Set(["awaiting_approval", "edited"]);
 
 export function ApprovalsPage() {
   const queryClient = useQueryClient();
-  // Request context: /approvals?request={id} comes from the Unified Request
-  // Workspace (refresh-safe).
+  const { requestId: routeRequestId } = useParams<{ requestId?: string }>();
   const [searchParams] = useSearchParams();
-  const contextRequestId = searchParams.get("request");
+  const queryRequestId = searchParams.get("request");
+  const contextRequestId = routeRequestId || queryRequestId || null;
+
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     contextRequestId,
   );
   const [decision, setDecision] = useState<ApprovalResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (contextRequestId) setSelectedRequestId(contextRequestId);
+  }, [contextRequestId]);
 
   const meQuery = useQuery({ queryKey: ["me"], queryFn: me });
   const requestsQuery = useQuery({
@@ -40,7 +45,7 @@ export function ApprovalsPage() {
 
   const requests: RequestResponse[] = requestsQuery.data ?? [];
   const activeRequestId =
-    selectedRequestId ?? (requests.length > 0 ? requests[0].request_id : null);
+    selectedRequestId ?? contextRequestId ?? (requests.length > 0 ? requests[0].request_id : null);
 
   const draftsQuery = useQuery({
     queryKey: ["drafts", activeRequestId],
@@ -166,8 +171,8 @@ export function ApprovalsPage() {
   }
   return (
     <div>
-      {contextRequestId && (
-        <RequestContextBar requestId={contextRequestId} />
+      {activeRequestId && (
+        <RequestContextBar requestId={activeRequestId} />
       )}
       <PageHeader
         eyebrow="Rasikh workspace"
@@ -175,24 +180,35 @@ export function ApprovalsPage() {
         description="Lawyer decisions on the current draft version of a matter. Decisions are recorded by the backend and are terminal."
       />
 
-      <label className="auth-field">
-        Matter
-        <select
-          value={activeRequestId ?? ""}
-          onChange={(e) => {
-            setSelectedRequestId(e.target.value);
-            setDecision(null);
-            setErrorMessage(null);
-          }}
-        >
-          {requests.map((r) => (
-            <option key={r.request_id} value={r.request_id}>
-              {r.request_id}
-              {r.org_id ? ` — ${r.org_id}` : ""}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div style={{ display: "flex", gap: "16px", alignItems: "center", marginBottom: "16px" }}>
+        <label className="auth-field" style={{ margin: 0, flexGrow: 1 }}>
+          Matter / Request
+          <select
+            value={activeRequestId ?? ""}
+            onChange={(e) => {
+              setSelectedRequestId(e.target.value);
+              setDecision(null);
+              setErrorMessage(null);
+            }}
+          >
+            {requests.map((r) => (
+              <option key={r.request_id} value={r.request_id}>
+                {r.request_id}
+                {r.org_id ? ` — ${r.org_id}` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+        {activeRequestId && (
+          <Link
+            className="button-secondary"
+            to={`/requests/${encodeURIComponent(activeRequestId)}`}
+            style={{ marginTop: "22px" }}
+          >
+            ← Back to Request ({activeRequestId})
+          </Link>
+        )}
+      </div>
 
       {activeRequestId && (
         <p className="auth-subtitle">
@@ -201,7 +217,9 @@ export function ApprovalsPage() {
             open {activeRequestId}
           </Link>
           {" · "}Drafts:{" "}
-          <Link className="text-link" to="/drafts">open drafts workspace</Link>
+          <Link className="text-link" to={`/requests/${encodeURIComponent(activeRequestId)}/drafts`}>
+            open drafts workspace
+          </Link>
         </p>
       )}
 
@@ -276,6 +294,7 @@ export function ApprovalsPage() {
                   type="button"
                   className="button"
                   disabled={
+                    !canApproveHint ||
                     approveMutation.isPending ||
                     rejectMutation.isPending ||
                     !reviewerId
@@ -288,6 +307,7 @@ export function ApprovalsPage() {
                   type="button"
                   className="logout-button"
                   disabled={
+                    !canApproveHint ||
                     approveMutation.isPending ||
                     rejectMutation.isPending ||
                     !reviewerId
@@ -301,9 +321,8 @@ export function ApprovalsPage() {
                 )}
               </div>
               {!canApproveHint && (
-                <p className="auth-subtitle">
-                  Your linked member does not carry the can_approve capability; the
-                  backend will refuse the decision if it is not permitted.
+                <p className="auth-subtitle" style={{ color: "var(--color-fg-muted)", marginTop: "8px" }}>
+                  Your linked member does not carry approval authority (<code>can_approve=false</code>). You may review work for this matter, but approval requires an authorized approver.
                 </p>
               )}
             </>
